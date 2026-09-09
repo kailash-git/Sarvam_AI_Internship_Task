@@ -1,0 +1,40 @@
+{
+  "id": "homophone-03",
+  "category": "homophone",
+  "description": "verb slot again ('you' before, determiner after); deliberate non-intervention even though 'see' was corrected to 'sea' twice",
+  "input": "can you see the screen",
+  "expected_output": "Can you see the screen?",
+  "actual_output": "Can you see the screen?",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'see'. Grammar: 'see' is in a verb slot here, which is 'see'. 'sea' left as written.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.0,
+    "s_ctx_semantic": 0.029,
+    "confidence": 0.7,
+    "combined": 0.482
+  },
+  "asr_text": "can you see the screen",
+  "formatted_text": "Can you see the screen?",
+  "memory_aware_text": "Can you see the screen?",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.487,
+    "misheard_count": 2,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 2.32,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

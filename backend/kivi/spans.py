@@ -29,15 +29,23 @@ def _asr_tokens(asr_text: str) -> list[str]:
     return _TOKEN_RE.findall(asr_text or "")
 
 
-def build_spans(formatted_text: str, asr_text: str) -> list[Span]:
+def build_spans(formatted_text: str, asr_text: str,
+                allow: set[str] | None = None) -> list[Span]:
+    """`allow` = normalized forms the memory actually knows about. Short and
+    function-word tokens are skipped as noise UNLESS they are in `allow` - a word
+    the user has explicitly taught (no/know, to/too, by/buy) must still be able to
+    reach retrieval, or the correction can never take effect."""
     asr_toks = _asr_tokens(asr_text)
     asr_norms = [normalize_token(t) for t in asr_toks]
+    allow = allow or set()
 
     spans: list[Span] = []
     for i, m in enumerate(_TOKEN_RE.finditer(formatted_text)):
         tok = m.group(0)
         norm = normalize_token(tok)
-        if not norm or norm in _SKIP or len(norm) <= 2:
+        if not norm:
+            continue
+        if (norm in _SKIP or len(norm) <= 2) and norm not in allow:
             continue
         # align: same normalized token in ASR, preferring the nearest index
         asr_original = tok

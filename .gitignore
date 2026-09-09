@@ -1,21 +1,21 @@
 __pycache__/
 *.pyc
-<<<<<<< HEAD
-.venv/
-venv/
-database/kivi.db
-database/kivi.db-*
-backend/uploads/
-.DS_Store
-node_modules/
-=======
 .pytest_cache/
 .venv/
 venv/
 .env
+
+# local SQLite database (recreated by `python manage.py reset`)
+database/kivi.db
+database/kivi.db-*
 *.db
 *.db-journal
 *.db-wal
 *.db-shm
+
+backend/uploads/
 .DS_Store
->>>>>>> 6d3bcdf4a6716ab829c395c210736b0c12063223
+node_modules/
+
+# NOTE: backend/kivi/models/ IS committed on purpose (vendored embedding model,
+# ~31 MB) so the demo and evaluation run offline from a fresh clone.

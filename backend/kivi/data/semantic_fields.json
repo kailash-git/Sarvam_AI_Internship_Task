@@ -1,0 +1,182 @@
+{
+  "_comment": "Semantic-field lexicon for the optional NLP context layer. Maps everyday words to broad concept tags. A word may appear under several tags (weights accumulate). This is shared across every memory - per-memory behaviour is LEARNED from the sentences the user confirms/rejected, not encoded here. Extend freely; it is data, not code. Keys must be lowercase single tokens (matched after casefold + stopword removal; a light -s/-ed/-ing/-es suffix fallback is applied at lookup).",
+
+  "food": [
+    "eat", "ate", "eaten", "eating", "edible", "inedible", "food", "foods", "meal", "meals",
+    "breakfast", "lunch", "dinner", "brunch", "supper", "snack", "snacks", "bite", "chew",
+    "swallow", "taste", "tasted", "tasty", "flavour", "flavor", "flavours", "delicious",
+    "yummy", "yum", "savoury", "savory", "sweet", "sour", "bitter", "salty", "spicy",
+    "juice", "juices", "juicy", "smoothie", "nectar", "pulp", "ripe", "ripen", "ripened",
+    "unripe", "rotten", "fresh", "stale", "raw", "cooked", "nutritious", "nutrition",
+    "calorie", "calories", "protein", "vitamin", "vitamins", "fibre", "fiber", "diet",
+    "hungry", "hunger", "starving", "appetite", "full", "peel", "peeled", "rind", "skin",
+    "seed", "seeds", "pit", "core", "slice", "sliced", "dice", "chop", "grate", "mash",
+    "recipe", "dish", "dishes", "cuisine", "serving", "portion", "plate", "bowl", "fork",
+    "spoon", "knife", "dessert", "salad", "soup", "stew", "sandwich", "toast", "jam",
+    "sauce", "dressing", "garnish", "organic", "grocery", "groceries", "supermarket",
+    "pantry", "fridge", "refrigerator", "freezer", "leftovers", "snacking"
+  ],
+  "cooking": [
+    "cook", "cooked", "cooking", "bake", "baked", "baking", "boil", "boiled", "fry",
+    "fried", "frying", "roast", "roasted", "grill", "grilled", "simmer", "steam",
+    "microwave", "oven", "stove", "pan", "pot", "skillet", "kettle", "kitchen", "chef",
+    "cookbook", "ingredient", "ingredients", "marinate", "knead", "whisk", "blend",
+    "season", "seasoned", "preheat"
+  ],
+  "plant": [
+    "fruit", "fruits", "vegetable", "vegetables", "veggie", "berry", "berries", "melon",
+    "kiwifruit", "apple", "apples", "banana", "bananas", "orange", "oranges", "mango",
+    "grape", "grapes", "pear", "peach", "plum", "lemon", "lime", "cherry", "strawberry",
+    "blueberry", "pineapple", "papaya", "guava", "avocado", "tomato", "potato", "onion",
+    "carrot", "lettuce", "spinach", "cucumber", "pepper", "tree", "trees", "vine", "vines",
+    "plant", "plants", "leaf", "leaves", "root", "roots", "branch", "flower", "bloom",
+    "blossom", "orchard", "vineyard", "garden", "gardening", "farm", "farmer", "crop",
+    "crops", "harvest", "harvested", "grow", "grown", "growing", "sow", "prune", "soil",
+    "compost", "sapling", "seedling", "shrub", "bush", "hedge"
+  ],
+  "nature": [
+    "forest", "woods", "jungle", "meadow", "field", "mountain", "hill", "valley", "river",
+    "stream", "lake", "pond", "ocean", "sea", "beach", "shore", "coast", "desert",
+    "wildlife", "outdoors", "hike", "hiking", "trail", "camp", "camping", "sunrise",
+    "sunset", "wilderness"
+  ],
+  "animal": [
+    "animal", "animals", "dog", "cat", "bird", "birds", "fish", "horse", "cow", "sheep",
+    "goat", "pig", "chicken", "rabbit", "mouse", "rat", "deer", "bear", "wolf", "fox",
+    "lion", "tiger", "elephant", "monkey", "snake", "insect", "bee", "ant", "butterfly",
+    "pet", "pets", "paw", "tail", "fur", "feather", "bark", "meow", "wildlife", "zoo",
+    "veterinarian", "vet", "kennel"
+  ],
+  "software": [
+    "software", "app", "apps", "application", "program", "code", "codebase", "coding",
+    "script", "scripts", "bug", "bugs", "debug", "compile", "build", "builds", "deploy",
+    "deployed", "deployment", "release", "releases", "rollback", "server", "servers",
+    "backend", "frontend", "database", "db", "query", "schema", "migration", "api", "apis",
+    "endpoint", "endpoints", "request", "response", "service", "services", "microservice",
+    "cluster", "container", "docker", "kubernetes", "pod", "pipeline", "ci", "cd",
+    "repo", "repository", "commit", "commits", "branch", "merge", "pull", "push",
+    "version", "config", "configuration", "environment", "staging", "production", "prod",
+    "runtime", "cache", "queue", "latency", "throughput", "uptime", "downtime", "outage",
+    "incident", "logs", "logging", "monitor", "monitoring", "metrics", "dashboard",
+    "console", "terminal", "cli", "sdk", "library", "framework", "package", "dependency",
+    "module", "function", "class", "variable", "async", "thread", "process", "restart",
+    "reboot", "install", "upgrade", "patch", "release", "feature", "ticket", "sprint",
+    "backlog", "refactor", "test", "tests", "unit", "integration", "coverage", "lint",
+    "token", "auth", "authentication", "login", "logout", "session", "encryption",
+    "protocol", "agent", "agents", "model", "models", "inference", "prompt", "context",
+    "integration", "webhook", "json", "yaml", "http", "rest", "grpc", "graphql",
+    "frontend", "ui", "ux", "component", "render", "state", "props", "hook", "bundle",
+    "npm", "pip", "git", "github", "gitlab", "jira", "assistant", "voice", "chatbot",
+    "transcription", "asr", "nlp", "embedding", "vector", "dataset", "training"
+  ],
+  "hardware": [
+    "hardware", "device", "devices", "machine", "laptop", "desktop", "computer", "cpu",
+    "gpu", "ram", "memory", "disk", "ssd", "drive", "chip", "processor", "keyboard",
+    "mouse", "monitor", "screen", "cable", "port", "router", "network", "wifi", "ethernet",
+    "battery", "charger", "usb", "sensor", "circuit"
+  ],
+  "people": [
+    "colleague", "colleagues", "coworker", "teammate", "teammates", "team", "manager",
+    "lead", "boss", "director", "founder", "cofounder", "employee", "staff", "intern",
+    "friend", "friends", "family", "sister", "brother", "mother", "father", "parent",
+    "cousin", "uncle", "aunt", "neighbour", "neighbor", "stranger", "guest", "visitor",
+    "client", "customer", "partner", "colleague", "mentor", "recruiter", "candidate"
+  ],
+  "communication": [
+    "said", "say", "says", "tell", "told", "ask", "asked", "asking", "call", "called",
+    "phone", "email", "emailed", "message", "messaged", "text", "texted", "chat", "reply",
+    "replied", "respond", "answer", "meeting", "meetings", "sync", "standup", "call",
+    "conversation", "talk", "talked", "spoke", "speak", "discuss", "discussed", "mention",
+    "mentioned", "notify", "inform", "announce", "brief", "update", "review", "feedback",
+    "comment", "note", "memo", "letter", "invite", "schedule", "agenda"
+  ],
+  "business": [
+    "company", "companies", "startup", "firm", "corporation", "enterprise", "business",
+    "office", "workplace", "headquarters", "hq", "branch", "department", "division",
+    "board", "investor", "funding", "revenue", "profit", "loss", "budget", "quarter",
+    "strategy", "roadmap", "launch", "market", "customer", "client", "deal", "contract",
+    "partnership", "acquisition", "merger", "hire", "hiring", "onboarding", "layoff",
+    "salary", "equity", "stakeholder", "kpi", "okr", "milestone", "deadline"
+  ],
+  "money": [
+    "money", "cash", "price", "cost", "costs", "expensive", "cheap", "afford", "pay",
+    "paid", "payment", "buy", "bought", "purchase", "sell", "sold", "sale", "discount",
+    "invoice", "bill", "billing", "refund", "bank", "account", "loan", "debt", "credit",
+    "debit", "tax", "taxes", "wallet", "currency", "dollar", "rupee", "euro", "savings",
+    "invest", "investment", "fund", "expense", "receipt"
+  ],
+  "shopping": [
+    "buy", "bought", "buying", "shop", "shopping", "store", "stores", "mall", "market",
+    "cart", "basket", "aisle", "checkout", "order", "ordered", "delivery", "deliver",
+    "shipment", "shipping", "warehouse", "stock", "inventory", "purchase", "retail",
+    "browse", "wishlist"
+  ],
+  "health": [
+    "health", "healthy", "sick", "ill", "illness", "disease", "symptom", "fever", "cough",
+    "cold", "flu", "pain", "ache", "injury", "wound", "doctor", "nurse", "hospital",
+    "clinic", "patient", "medicine", "medication", "pill", "drug", "dose", "prescription",
+    "treatment", "therapy", "surgery", "diagnosis", "recovery", "vaccine", "exercise",
+    "fitness", "workout", "wellness", "mental", "stress", "sleep", "rest"
+  ],
+  "travel": [
+    "travel", "trip", "journey", "flight", "flights", "plane", "airport", "airline",
+    "boarding", "ticket", "passport", "visa", "hotel", "hostel", "booking", "reservation",
+    "itinerary", "luggage", "baggage", "suitcase", "vacation", "holiday", "tour",
+    "tourist", "sightseeing", "destination", "abroad", "commute", "train", "station",
+    "platform", "bus", "taxi", "cab", "drive", "road", "highway", "route", "map"
+  ],
+  "vehicle": [
+    "car", "cars", "vehicle", "truck", "bus", "van", "motorcycle", "bike", "bicycle",
+    "scooter", "engine", "wheel", "tyre", "tire", "brake", "fuel", "petrol", "diesel",
+    "gear", "steering", "garage", "parking", "traffic", "license", "driver"
+  ],
+  "home": [
+    "home", "house", "apartment", "flat", "room", "bedroom", "bathroom", "kitchen",
+    "living", "furniture", "sofa", "couch", "chair", "table", "bed", "desk", "shelf",
+    "closet", "wardrobe", "door", "window", "wall", "floor", "ceiling", "roof", "garden",
+    "yard", "lawn", "rent", "mortgage", "landlord", "tenant", "chores", "cleaning",
+    "laundry", "vacuum"
+  ],
+  "education": [
+    "school", "college", "university", "class", "classes", "course", "lecture", "lesson",
+    "student", "students", "teacher", "professor", "tutor", "study", "studied", "studying",
+    "learn", "learned", "learning", "exam", "exams", "test", "quiz", "grade", "homework",
+    "assignment", "essay", "thesis", "degree", "diploma", "curriculum", "syllabus",
+    "textbook", "library", "campus", "scholarship", "semester"
+  ],
+  "music": [
+    "music", "song", "songs", "album", "track", "melody", "tune", "lyrics", "band",
+    "singer", "musician", "guitar", "piano", "drums", "violin", "concert", "gig",
+    "playlist", "chord", "rhythm", "beat", "vocals", "instrument", "orchestra", "record",
+    "studio", "headphones", "speaker"
+  ],
+  "sport": [
+    "sport", "sports", "game", "match", "team", "player", "coach", "score", "goal",
+    "win", "won", "lose", "lost", "tournament", "league", "championship", "practice",
+    "training", "gym", "run", "running", "swim", "swimming", "football", "soccer",
+    "cricket", "basketball", "tennis", "baseball", "ball", "field", "court", "stadium",
+    "referee", "fitness"
+  ],
+  "weather": [
+    "weather", "rain", "raining", "snow", "snowing", "storm", "wind", "windy", "sun",
+    "sunny", "cloud", "cloudy", "fog", "foggy", "hot", "cold", "warm", "cool", "humid",
+    "temperature", "forecast", "climate", "thunder", "lightning", "hail", "breeze",
+    "drizzle", "heatwave"
+  ],
+  "time": [
+    "morning", "afternoon", "evening", "night", "week", "weekend", "month", "year",
+    "hour", "minute", "second", "day", "days", "date", "calendar", "schedule", "clock",
+    "early", "late", "soon", "later", "before", "after", "during", "deadline", "delay"
+  ],
+  "emotion": [
+    "happy", "sad", "angry", "afraid", "scared", "excited", "nervous", "anxious", "calm",
+    "proud", "ashamed", "guilty", "jealous", "lonely", "grateful", "frustrated", "bored",
+    "tired", "relaxed", "worried", "delighted", "upset", "annoyed", "content", "hopeful",
+    "love", "hate", "fear", "joy", "grief"
+  ],
+  "law": [
+    "law", "legal", "lawyer", "attorney", "court", "judge", "jury", "trial", "lawsuit",
+    "sue", "contract", "clause", "rights", "liability", "compliance", "regulation",
+    "policy", "statute", "verdict", "settlement", "patent", "copyright", "license"
+  ]
+}

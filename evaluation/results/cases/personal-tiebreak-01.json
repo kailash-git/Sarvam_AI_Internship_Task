@@ -13,6 +13,7 @@
     "s_ctx_pos": 0.0,
     "s_ctx_neg": 0.0,
     "s_ctx": 0.0,
+    "s_ctx_semantic": 0.051,
     "confidence": 0.952,
     "combined": 0.598
   },
@@ -33,7 +34,7 @@
     "note": "Your correction history separated a near-tie: 'Kivi' has been misheard 4x vs 0x for 'Sivi'."
   },
   "passed": true,
-  "latency_ms": 4.18,
+  "latency_ms": 4.04,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

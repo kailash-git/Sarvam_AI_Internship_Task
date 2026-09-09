@@ -1,0 +1,40 @@
+{
+  "id": "homophone-02",
+  "category": "homophone",
+  "description": "same memory; grammar puts 'see' in a noun slot (determiner before, 'is' after) -> REPLACE to 'sea', with no keyword context at all",
+  "input": "the see is calm today",
+  "expected_output": "The sea is calm today.",
+  "actual_output": "The sea is calm today.",
+  "expected_action": "REPLACE",
+  "actual_action": "REPLACE",
+  "reason": "Replaced 'see' with 'sea': exact match (surface 1.00) to an active memory (confidence 0.70); context score +0.00. Combined 0.82. Your ASR has mis-spelled 'sea' 2x before, so its score was lifted x1.17.  Grammar: 'see' is in a noun slot here, which is 'sea' (not 'see').",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.0,
+    "s_ctx_semantic": 0.02,
+    "confidence": 0.7,
+    "combined": 0.819
+  },
+  "asr_text": "the see is calm today",
+  "formatted_text": "The see is calm today.",
+  "memory_aware_text": "The sea is calm today.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.487,
+    "misheard_count": 2,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 2.61,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

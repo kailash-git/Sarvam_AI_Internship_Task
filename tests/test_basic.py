@@ -193,5 +193,165 @@ class PersonalPhonetics(unittest.TestCase):
             conn.close()
 
 
+class SemanticContext(unittest.TestCase):
+    """The optional semantic-field layer generalises the do-not-apply context
+    past the hand-listed keywords, without touching the decision engine."""
+
+    def setUp(self):
+        reset()
+
+    def _run(self, text, span):
+        r = process(text=text, persist=False)
+        for d in r["decisions"]:
+            if normalize_token(d["span"]) == normalize_token(span):
+                return r["memory_aware_text"], d
+        return r["memory_aware_text"], None
+
+    def test_unlisted_food_word_triggers_deliberate_keep(self):
+        # "edible" / "nutritious" / "fresh" are in NO keyword list in the seed memory.
+        for text, span in (("Kivi is edible", "kivi"),
+                           ("the kiwi was nutritious and fresh", "kiwi")):
+            out, d = self._run(text, span)
+            self.assertIsNotNone(d)
+            self.assertEqual(d["action"], "KEEP")
+            self.assertEqual(d["reason_code"], "negative_context")
+            self.assertLess(d["s_ctx_semantic"], 0.0)
+
+    def test_semantic_layer_does_not_suppress_a_real_software_context(self):
+        out, d = self._run("roll back the kiwi deployment", "kiwi")
+        self.assertEqual(out, "Roll back the Kivi deployment.")
+        self.assertEqual(d["action"], "REPLACE")
+
+    def test_embedding_backend_generalises_to_unlisted_words(self):
+        # "green"/"oval"/"crimson" are in NO keyword list and NO semantic-field
+        # file. Only a real embedding space can place them near the fruit region.
+        from kivi.semantic import active_backend
+        if active_backend() != "model2vec":
+            self.skipTest("embedding model not installed; lexicon fallback active")
+        for text, span in (("Kivi is green and oval", "kivi"),
+                           ("the kiwi looked crimson and juicy", "kiwi")):
+            out, d = self._run(text, span)
+            self.assertIn(d["action"], ("KEEP", "DEFER"))
+            self.assertLess(d["s_ctx_semantic"], 0.0)
+        # a genuine software context must still win
+        _, d = self._run("scale up the kivi cluster", "kivi")
+        self.assertEqual(d["action"], "REPLACE")
+
+    def test_disabled_flag_falls_back_to_keyword_only(self):
+        import kivi.config as cfg
+        from kivi.context import assess
+        conn = connect()
+        try:
+            mem = get_memory_by_norm(conn, "kivi")
+            ctx = {"keywords": ["edible"], "domain": "general",
+                   "exclude": "kivi", "text": "Kivi is edible"}
+            saved = cfg.SEM
+            cfg.SEM = {"enabled": False}
+            try:
+                a = assess(mem, ctx, conn=conn)
+            finally:
+                cfg.SEM = saved
+            self.assertEqual(a["s_ctx_neg"], 0.0)      # keyword list alone misses "edible"
+            self.assertEqual(a["s_ctx_semantic"], 0.0)
+        finally:
+            conn.close()
+
+    def test_processing_stays_read_only_with_semantic_layer(self):
+        conn = connect()
+        try:
+            before = get_memory_by_norm(conn, "kivi")["confidence"]
+        finally:
+            conn.close()
+        for _ in range(3):
+            process(text="Kivi is edible", persist=False)
+        conn = connect()
+        try:
+            self.assertEqual(get_memory_by_norm(conn, "kivi")["confidence"], before)
+        finally:
+            conn.close()
+
+
+class Homophones(unittest.TestCase):
+    """Grammar decides common-word homophone pairs (see/sea). Surface match and
+    correction history cannot force a REPLACE - only the grammatical slot can."""
+
+    def setUp(self):
+        reset()
+        for fmt, asr in (("The sea is huge.", "the see is huge"),
+                         ("I sailed across the sea.", "i sailed across the see")):
+            observe(type="explicit_correction", chosen_form="sea", rejected_form="see",
+                    formatted_text=fmt, raw_asr_text=asr)
+
+    def _out(self, text):
+        return process(text=text, persist=False)["memory_aware_text"]
+
+    def test_verb_slot_is_left_alone(self):
+        for text, want in (("I see you", "I see you."),
+                           ("can you see the screen", "Can you see the screen?"),
+                           ("let me see the report", "Let me see the report."),
+                           ("you should see a doctor", "You should see a doctor.")):
+            self.assertEqual(self._out(text), want)
+
+    def test_noun_slot_is_restored_without_any_keyword_context(self):
+        self.assertEqual(self._out("the see is calm today"), "The sea is calm today.")
+        self.assertEqual(self._out("waves crash on the see"), "Waves crash on the sea.")
+
+    def test_mixed_sentence(self):
+        # the verb 'see' stays, the noun 'sea' (already correct) is untouched
+        self.assertEqual(self._out("I want to see the sea"), "I want to see the sea.")
+
+    def test_short_function_word_reaches_retrieval(self):
+        # "no" is 2 chars - the span builder skips those as noise unless the
+        # memory knows the form, or the correction can never take effect.
+        reset()
+        observe(type="explicit_correction", chosen_form="know", rejected_form="no",
+                formatted_text="I no you.", raw_asr_text="i no you")
+        self.assertEqual(self._out("I no you."), "I know you.")
+        self.assertEqual(self._out("do you no where it is"), "Do you know where it is?")
+
+    def test_function_word_is_not_blanket_rewritten(self):
+        reset()
+        observe(type="explicit_correction", chosen_form="know", rejected_form="no",
+                formatted_text="I no you.", raw_asr_text="i no you")
+        for text, want in (("there is no problem", "There is no problem."),
+                           ("no one came", "No one came."),
+                           ("he has no idea", "He has no idea.")):
+            self.assertEqual(self._out(text), want)
+
+    def test_scoped_rejection_never_demotes_an_established_memory(self):
+        # The authoritative floor is a property of the memory's history. Three
+        # scoped rejections must not drag `Sun` from active(0.70) to proposed.
+        reset()
+        observe(type="explicit_correction", chosen_form="Sun", rejected_form="son",
+                formatted_text="The son glows.", raw_asr_text="the son glows")
+        for t in ("My son is studying law.", "My son is a doctor.", "My son is at home."):
+            observe(type="rejection", rejected_form="Sun", chosen_form="son",
+                    formatted_text=t, raw_asr_text=t.lower())
+        conn = connect()
+        try:
+            m = get_memory_by_norm(conn, "sun")
+            self.assertEqual(m["status"], "active")
+            self.assertGreaterEqual(m["confidence"], 0.7)
+        finally:
+            conn.close()
+        self.assertEqual(self._out("son glows"), "Sun glows.")
+        self.assertEqual(self._out("My son is studying law"), "My son is studying law.")
+
+    def test_taught_override_yields_to_negative_meaning(self):
+        reset()
+        observe(type="explicit_correction", chosen_form="Sun", rejected_form="son",
+                formatted_text="The son glows.", raw_asr_text="the son glows")
+        self.assertEqual(self._out("son glows"), "Sun glows.")          # meaning agrees
+        self.assertEqual(self._out("my son is a doctor"), "My son is a doctor.")  # leans away
+
+    def test_grammar_module_directly(self):
+        from kivi.grammar import role_of, assess_homophone
+        self.assertEqual(role_of("I see you", "see"), "verb")
+        self.assertEqual(role_of("the sea is huge", "sea"), "noun")
+        v = assess_homophone("sea", "see", "I see you", "see")
+        self.assertEqual(v["verdict"], "favors_alias")
+        self.assertIsNone(assess_homophone("Kivi", "kiwi", "deploy kiwi now", "kiwi"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

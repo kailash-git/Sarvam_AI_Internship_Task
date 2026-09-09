@@ -1,18 +1,17 @@
-<<<<<<< HEAD
 # Kivi Personal Phonetic Memory - prototype dependencies
-# Core logic is stdlib-only. These are only for the HTTP API.
+# All core decision logic is stdlib-only. These packages are for:
+#   - the HTTP layer (fastapi / uvicorn / python-multipart)
+#   - the optional local semantic context layer (model2vec + numpy)
+#
+# The semantic layer is OPTIONAL. If model2vec is not installed, the system
+# automatically falls back to the shipped keyword/semantic-field lexicon
+# (config.json -> semantic_context.backend). No network access is required at
+# any point: the embedding model is vendored in backend/kivi/models/.
+
 fastapi>=0.110
 uvicorn[standard]>=0.27
 python-multipart>=0.0.9
-=======
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-pydantic==2.10.4
-jellyfish==1.1.3
-Metaphone==0.6
-rapidfuzz==3.11.0
-PyYAML==6.0.2
-httpx==0.28.1
-python-dotenv==1.0.1
-pytest==8.3.4
->>>>>>> 6d3bcdf4a6716ab829c395c210736b0c12063223
+
+# --- optional: local semantic context layer (offline, deterministic, no torch) ---
+model2vec==0.9.0
+numpy>=1.26

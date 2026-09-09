@@ -14,11 +14,12 @@ from kivi.asr import get_asr
 from kivi.formatter import get_formatter
 from kivi.spans import build_spans
 from kivi.context import utterance_context, assess
+from kivi.grammar import assess_homophone
 from kivi.memory.retrieval import find_candidates
 from kivi.decision import decide
 from kivi.rewrite import apply_replacements
 from kivi.explain import build_trace, summarize
-from kivi.db.store import txn, insert_request, insert_decision
+from kivi.db.store import txn, insert_request, insert_decision, known_surface_forms
 
 
 def process(*, text: str | None = None, audio_path: str | None = None,
@@ -42,15 +43,18 @@ def process(*, text: str | None = None, audio_path: str | None = None,
     # ---- LEVEL 3: memory-aware ----
     decisions = []
     with txn() as conn:
-        spans = build_spans(fmt_res.text, asr_res.text)
+        spans = build_spans(fmt_res.text, asr_res.text,
+                            allow=known_surface_forms(conn))
         for sp in spans:
             cands = find_candidates(conn, sp.text, sp.asr_original)
             ctx = utterance_context(fmt_res.text, exclude=sp.text)
             scored = []
             for c in cands:
                 mem = conn.execute("SELECT * FROM memory WHERE id = ?", (c.memory_id,)).fetchone()
-                a = assess(mem, ctx)
-                scored.append({"cand": c, **a})
+                a = assess(mem, ctx, conn=conn)
+                hv = assess_homophone(mem["canonical_form"], c.alias_surface,
+                                      fmt_res.text, sp.text, sp.start)
+                scored.append({"cand": c, **a, "homophone": hv})
             d = decide(sp.text, sp.start, sp.end, sp.asr_original, scored)
             d.context_domain = ctx["domain"]
             decisions.append(d)
@@ -101,6 +105,8 @@ def process(*, text: str | None = None, audio_path: str | None = None,
                 "reason": d.reason_text, "matched_memory": d.candidate_canonical,
                 "asr_original": d.asr_original, "context_domain": getattr(d, "context_domain", None),
                 "replacement": d.replacement,
+                "s_ctx_semantic": d.s_ctx_semantic, "context_note": d.context_note or None,
+                "homophone": d.homophone,
                 "personal": {
                     "method_personal": d.match_method == "personal",
                     "s_personal": d.s_personal,

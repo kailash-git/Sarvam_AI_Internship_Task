@@ -7,14 +7,15 @@
   "actual_output": "The kiwi was ripe and sweet.",
   "expected_action": "KEEP",
   "actual_action": "KEEP",
-  "reason": "Kept 'kiwi'. 'Kivi' matched but the combined score (0.25) is below the defer threshold (0.32).",
+  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 0.96). 'Kivi' is unaffected.  Semantic context (model2vec): the sentence resembles 'Kivi's rejected examples more than its confirmed ones (applied +0.00 vs rejected +0.38).",
   "scores": {
     "s_surf": 1.0,
     "s_ctx_pos": 0.0,
-    "s_ctx_neg": 0.3,
-    "s_ctx": -0.3,
+    "s_ctx_neg": 0.958,
+    "s_ctx": -0.958,
+    "s_ctx_semantic": -0.375,
     "confidence": 0.923,
-    "combined": 0.254
+    "combined": 0.0
   },
   "asr_text": "the kiwi was ripe and sweet",
   "formatted_text": "The kiwi was ripe and sweet.",
@@ -33,7 +34,7 @@
     "note": null
   },
   "passed": true,
-  "latency_ms": 13.01,
+  "latency_ms": 3.61,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

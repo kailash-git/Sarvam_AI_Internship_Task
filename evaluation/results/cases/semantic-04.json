@@ -1,0 +1,40 @@
+{
+  "id": "semantic-04",
+  "category": "semantic_context",
+  "description": "appearance words ('green', 'oval') in NO keyword list; the local embedding model places them near this memory's rejected (fruit) examples -> deliberate KEEP",
+  "input": "Kivi is green and oval",
+  "expected_output": "Kivi is green and oval.",
+  "actual_output": "Kivi is green and oval.",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'Kivi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 0.57). 'Kivi' is unaffected.  Semantic context (model2vec): the sentence resembles 'Kivi's rejected examples more than its confirmed ones (applied -0.00 vs rejected +0.14).",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.57,
+    "s_ctx": -0.57,
+    "s_ctx_semantic": -0.142,
+    "confidence": 0.841,
+    "combined": 0.0
+  },
+  "asr_text": "kivi is green and oval",
+  "formatted_text": "Kivi is green and oval.",
+  "memory_aware_text": "Kivi is green and oval.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": true,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 2.43,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

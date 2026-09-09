@@ -19,7 +19,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from kivi.config import T, PP
+from kivi.config import T, PP, SEM
+
+# A "you taught me this" override on a same-part-of-speech homophone (son/sun)
+# only fires when the sentence's MEANING clearly agrees. Between this and the
+# negative gate the span falls into DEFER - surfaced, never auto-applied.
+SEM_POS_CLEAR = float(SEM.get("pos_clear", 0.15))
+
 
 
 @dataclass
@@ -49,6 +55,9 @@ class SpanDecision:
     personal_prior_n: int = 0
     personal_rules: list = field(default_factory=list)
     personal_note: str = ""
+    s_ctx_semantic: float = 0.0
+    context_note: str = ""
+    homophone: dict | None = None
 
 
 def _clamp01(x: float) -> float:
@@ -80,6 +89,13 @@ def _personal_clause(d, cand, top) -> str:
 
 
 def decide(span_text, span_start, span_end, asr_original, scored) -> SpanDecision:
+    d = _decide_core(span_text, span_start, span_end, asr_original, scored)
+    if d.context_note and d.context_note not in d.reason_text:
+        d.reason_text = (d.reason_text.rstrip() + "  " + d.context_note).strip()
+    return d
+
+
+def _decide_core(span_text, span_start, span_end, asr_original, scored) -> SpanDecision:
     """`scored` = list of dicts: {cand, s_ctx_pos, s_ctx_neg, s_ctx} sorted by s_surf desc."""
     d = SpanDecision(span_text, span_start, span_end, asr_original)
 
@@ -93,7 +109,33 @@ def decide(span_text, span_start, span_end, asr_original, scored) -> SpanDecisio
     boost_max = float(PP.get("combined_boost", 0.35))
     for s in scored:
         c = s["cand"]
-        gate = _context_gate(s["s_ctx"])
+        # A negative semantic separation that was below assess()'s hard-KEEP gate
+        # still counts here: it softens the context gate (pull-down only) and
+        # disqualifies the first-recall shortcut below. A positive lean is left
+        # for real context to earn - lifting the gate on it turned "plausible but
+        # unconfirmed" DEFERs into over-interventions (see eval multi-01).
+        sem = float(s.get("s_ctx_semantic", 0.0))
+        eff_ctx = s["s_ctx"] + min(0.0, sem)
+        gate = _context_gate(eff_ctx)
+        hv = s.get("homophone")
+        is_homo = bool(hv and hv.get("is_homophone"))
+        # Homophone pair (see/sea, their/there): the grammatical slot decides.
+        #  - a clear "canonical" slot IS the context -> open the gate;
+        #  - "unclear" (son/sun - same part of speech) but the user has EXPLICITLY
+        #    corrected this form before -> respect the correction, open the gate;
+        #  - "favours the alias" (grammatical contradiction) -> a later gate keeps
+        #    it untouched, and no correction count overrides that.
+        # "you corrected this before" only overrides a missing grammar signal for
+        # CONTENT words. For a function word (no, to, by, their) a single
+        # correction must never blanket-rewrite every later occurrence.
+        # ...and it never overrides a sentence whose MEANING leans away from the
+        # memory's confirmed examples - that is the context signal doing its job.
+        homo_taught = (is_homo and c.personal_prior_n >= 1
+                       and not hv.get("alias_is_function_word")
+                       and sem >= SEM_POS_CLEAR)
+        if is_homo and (hv["verdict"] == "favors_canonical"
+                        or (hv["verdict"] == "unclear" and homo_taught)):
+            gate = 1.0
         # First-recall of the user's own correction: an EXACT match to a stored
         # alias, on an active memory this user has already corrected before, is
         # not a guess - so a not-yet-established positive context should not hold
@@ -102,6 +144,8 @@ def decide(span_text, span_start, span_end, asr_original, scored) -> SpanDecisio
         s["gate_forced"] = (
             gate < 1.0
             and s["s_ctx"] >= 0.0          # only when context is neutral/positive,
+            and sem >= 0.0                 # and the meaning of the sentence does not lean away
+            and not is_homo               # never for a homophone - grammar decides, not history
             and c.status == "active"       # never when the surrounding words lean away
             and c.match_method == "exact"
             and c.s_surf >= 0.99
@@ -119,6 +163,20 @@ def decide(span_text, span_start, span_end, asr_original, scored) -> SpanDecisio
     scored.sort(key=lambda s: s["combined"], reverse=True)
 
     top = scored[0]
+    # Deliberate non-intervention veto: if the memory that actually owns this
+    # surface form (a strong surface match) says "do not apply in this context",
+    # keep the word untouched - even if a weaker phonetic cousin now outscores it
+    # because that suppression dropped its own combined score.
+    neg_veto = next(
+        (s for s in scored
+         if s is not top
+         and s["cand"].s_surf >= 0.9
+         and s["s_ctx_neg"] >= T["ctx_neg"]
+         and s["s_ctx_neg"] >= top["s_ctx_neg"]),
+        None,
+    )
+    if neg_veto is not None:
+        top = neg_veto
     cand = top["cand"]
     d.candidate_memory_id = cand.memory_id
     d.candidate_canonical = cand.canonical
@@ -127,6 +185,9 @@ def decide(span_text, span_start, span_end, asr_original, scored) -> SpanDecisio
     d.s_ctx_pos = top["s_ctx_pos"]
     d.s_ctx_neg = top["s_ctx_neg"]
     d.s_ctx = top["s_ctx"]
+    d.s_ctx_semantic = top.get("s_ctx_semantic", 0.0)
+    d.context_note = top.get("context_note", "")
+    d.homophone = top.get("homophone")
     d.mem_confidence = cand.confidence
     d.combined_score = top["combined"]
     d.contradiction_flag = bool(cand.contradiction)
@@ -182,6 +243,39 @@ def decide(span_text, span_start, span_end, asr_original, scored) -> SpanDecisio
             f"'{cand.canonical}' is unaffected."
         )
         return d
+
+    # Homophone gate: canonical and matched alias are both ordinary words
+    # (see/sea, their/there). The grammatical slot of the span decides; surface
+    # match and correction history cannot force it.
+    #   favours_canonical -> grammar IS the context; gate already opened -> REPLACE
+    #   favours_alias      -> wrong slot for the canonical -> KEEP (do nothing)
+    #   unclear            -> only intervene if real keyword / semantic context
+    #                         exists (e.g. a personal term that is a common word);
+    #                         otherwise KEEP
+    hv = top.get("homophone")
+    if hv and hv.get("is_homophone"):
+        taught = (d.personal_prior_n >= 1              # explicitly corrected before
+                  and not hv.get("alias_is_function_word")
+                  and d.s_ctx_semantic >= SEM_POS_CLEAR)  # meaning must clearly agree
+        if hv["verdict"] == "favors_canonical":
+            d.context_note = hv["note"]
+        elif hv["verdict"] == "favors_alias":
+            # grammatical contradiction - a correction count does not override it
+            d.action = "KEEP"
+            d.reason_code = "homophone_grammar"
+            d.reason_text = f"Kept '{span_text}'. {hv['note']}"
+            d.context_note = hv["note"]
+            return d
+        elif not taught and d.s_ctx_pos < T["ctx_pos"] and d.s_ctx_semantic < 0.30:
+            # no grammatical signal AND you have not taught this - do nothing
+            d.action = "KEEP"
+            d.reason_code = "homophone_unclear"
+            d.reason_text = f"Kept '{span_text}'. {hv['note']}"
+            d.context_note = hv["note"]
+            return d
+        elif taught:
+            d.context_note = (
+                f"{hv['note']} You have corrected this before, so it was applied anyway.")
 
     if d.ambiguity_flag or d.contradiction_flag:
         d.action = "DEFER"

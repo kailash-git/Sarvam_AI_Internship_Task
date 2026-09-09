@@ -54,6 +54,14 @@ def _merge_context_list(existing: dict, keywords: list[str], domain: str) -> dic
 
 def _recompute(conn, memory_id: int, *, authoritative: bool, contradiction: bool):
     ev = list_evidence(conn, memory_id)
+    # The authoritative floor is a property of the memory's HISTORY, not of the
+    # observation being recorded right now. A `strong_positive` row can only come
+    # from an explicit correction / teach / confirmation, so if one exists the
+    # floor must keep applying - otherwise a later scoped rejection silently
+    # demotes an established memory (active -> proposed), which is exactly what
+    # `negative_context` is documented never to do.
+    was_authoritative = any(e["kind"] == "strong_positive" for e in ev)
+    authoritative = authoritative or was_authoritative
     conf = apply_authoritative_floor(compute_confidence(ev), user_authoritative=authoritative)
     mem = get_memory(conn, memory_id)
     status = derive_status(mem["status"], conf, user_authoritative=authoritative,

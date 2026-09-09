@@ -29,6 +29,11 @@ PP = _CFG.get("personal_phonetics", {
     "combined_boost": 0.35, "prior_k": 3.0, "tiebreak_min_count": 3,
 })
 CONTEXT_LIST_MAX = int(_CFG.get("context_list_max", 12))
+SEM = _CFG.get("semantic_context", {
+    "enabled": False, "backend": "model2vec",
+    "model_path": "backend/kivi/models/potion-base-8M",
+    "neg_gate": 0.10, "neg_floor": 0.40, "margin": 0.1,
+})
 AUDIO = _CFG.get("audio", {"max_seconds": 60, "max_mb": 5})
 
 
@@ -41,4 +46,5 @@ def as_dict() -> dict:
         "confidence": C,
         "personal_phonetics": PP,
         "context_list_max": CONTEXT_LIST_MAX,
+        "semantic_context": SEM,
     }

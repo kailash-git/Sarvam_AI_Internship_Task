@@ -7,12 +7,13 @@
   "actual_output": "I ate a kiwi today.",
   "expected_action": "KEEP",
   "actual_action": "KEEP",
-  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 0.65). 'Kivi' is unaffected.",
+  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 1.00). 'Kivi' is unaffected.  Semantic context (model2vec): the sentence resembles 'Kivi's rejected examples more than its confirmed ones (applied +0.02 vs rejected +0.45).",
   "scores": {
     "s_surf": 1.0,
     "s_ctx_pos": 0.0,
-    "s_ctx_neg": 0.65,
-    "s_ctx": -0.65,
+    "s_ctx_neg": 1.0,
+    "s_ctx": -1.0,
+    "s_ctx_semantic": -0.427,
     "confidence": 0.841,
     "combined": 0.0
   },
@@ -33,7 +34,7 @@
     "note": null
   },
   "passed": true,
-  "latency_ms": 3.28,
+  "latency_ms": 2.69,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

@@ -1,0 +1,40 @@
+{
+  "id": "homophone-06",
+  "category": "homophone",
+  "description": "content-word homophone (son/sun): one correction applies where the MEANING agrees, but a family-context sentence is left alone - the taught override yields to a negative semantic lean",
+  "input": "My son is studying law",
+  "expected_output": "My son is studying law.",
+  "actual_output": "My son is studying law.",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'son'. Grammar: 'Sun' and 'son' are both nouns - the sentence structure can't tell them apart here.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.0,
+    "s_ctx_semantic": -0.062,
+    "confidence": 0.7,
+    "combined": 0.396
+  },
+  "asr_text": "my son is studying law",
+  "formatted_text": "My son is studying law.",
+  "memory_aware_text": "My son is studying law.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.283,
+    "misheard_count": 1,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 4.71,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

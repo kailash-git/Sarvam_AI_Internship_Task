@@ -1,0 +1,40 @@
+{
+  "id": "homophone-05",
+  "category": "homophone",
+  "description": "same memory; 'no' in a determiner slot is a function word - one correction must never blanket-rewrite it -> KEEP",
+  "input": "there is no problem",
+  "expected_output": "There is no problem.",
+  "actual_output": "There is no problem.",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'no'. Grammar: 'no' is in a determiner slot here, which is 'no'. 'know' left as written.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.0,
+    "s_ctx_semantic": 0.096,
+    "confidence": 0.7,
+    "combined": 0.453
+  },
+  "asr_text": "there is no problem",
+  "formatted_text": "There is no problem.",
+  "memory_aware_text": "There is no problem.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.283,
+    "misheard_count": 1,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 6.51,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

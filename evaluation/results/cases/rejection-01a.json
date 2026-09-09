@@ -7,12 +7,13 @@
   "actual_output": "I planted a kiwi vine in the garden.",
   "expected_action": "KEEP",
   "actual_action": "KEEP",
-  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 0.80). 'Kivi' is unaffected.",
+  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 1.00). 'Kivi' is unaffected.  Semantic context (model2vec): the sentence resembles 'Kivi's rejected examples more than its confirmed ones (applied +0.06 vs rejected +0.89).",
   "scores": {
     "s_surf": 1.0,
     "s_ctx_pos": 0.0,
-    "s_ctx_neg": 0.8,
-    "s_ctx": -0.8,
+    "s_ctx_neg": 1.0,
+    "s_ctx": -1.0,
+    "s_ctx_semantic": -0.836,
     "confidence": 0.841,
     "combined": 0.0
   },
@@ -33,7 +34,7 @@
     "note": null
   },
   "passed": true,
-  "latency_ms": 5.8,
+  "latency_ms": 4.16,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

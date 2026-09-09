@@ -1,0 +1,40 @@
+{
+  "id": "semantic-02",
+  "category": "semantic_context",
+  "description": "another un-listed food signal ('nutritious', 'fresh') generalised by the semantic-field layer -> KEEP",
+  "input": "the kiwi was nutritious and fresh",
+  "expected_output": "The kiwi was nutritious and fresh.",
+  "actual_output": "The kiwi was nutritious and fresh.",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 0.99). 'Kivi' is unaffected.  Semantic context (model2vec): the sentence resembles 'Kivi's rejected examples more than its confirmed ones (applied -0.00 vs rejected +0.39).",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.986,
+    "s_ctx": -0.986,
+    "s_ctx_semantic": -0.392,
+    "confidence": 0.841,
+    "combined": 0.0
+  },
+  "asr_text": "the kiwi was nutritious and fresh",
+  "formatted_text": "The kiwi was nutritious and fresh.",
+  "memory_aware_text": "The kiwi was nutritious and fresh.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": true,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 2.45,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

@@ -13,6 +13,7 @@
     "s_ctx_pos": 0.7,
     "s_ctx_neg": 0.0,
     "s_ctx": 0.7,
+    "s_ctx_semantic": 0.582,
     "confidence": 0.379,
     "combined": 0.379
   },
@@ -33,7 +34,7 @@
     "note": null
   },
   "passed": true,
-  "latency_ms": 2.4,
+  "latency_ms": 3.34,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

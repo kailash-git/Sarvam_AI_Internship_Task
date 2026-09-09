@@ -211,6 +211,17 @@ def list_decisions(conn, request_id: int | None = None):
     ).fetchall()
 
 
+def known_surface_forms(conn) -> set[str]:
+    """Every normalized form the memory knows (aliases + canonicals). Used by the
+    span builder so a taught short/function word (no/know, to/too) is not filtered
+    out as noise before retrieval ever sees it."""
+    rows = conn.execute(
+        "SELECT normalized_form AS f FROM alias "
+        "UNION SELECT normalized_canonical AS f FROM memory WHERE status != 'inactive'"
+    ).fetchall()
+    return {r["f"] for r in rows if r["f"]}
+
+
 def list_sound_patterns(conn):
     return conn.execute(
         "SELECT * FROM sound_pattern ORDER BY weight DESC, observations DESC, id ASC"

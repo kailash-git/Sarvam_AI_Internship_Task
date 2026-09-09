@@ -1,0 +1,40 @@
+{
+  "id": "semantic-03",
+  "category": "semantic_context",
+  "description": "semantic layer must not suppress a genuine software context -> REPLACE still fires",
+  "input": "roll back the kiwi deployment",
+  "expected_output": "Roll back the Kivi deployment.",
+  "actual_output": "Roll back the Kivi deployment.",
+  "expected_action": "REPLACE",
+  "actual_action": "REPLACE",
+  "reason": "Replaced 'kiwi' with 'Kivi': exact match (surface 1.00) to an active memory (confidence 0.84); context score +0.30. Combined 0.79.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.3,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.3,
+    "s_ctx_semantic": 0.328,
+    "confidence": 0.841,
+    "combined": 0.791
+  },
+  "asr_text": "roll back the kiwi deployment",
+  "formatted_text": "Roll back the kiwi deployment.",
+  "memory_aware_text": "Roll back the Kivi deployment.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 3.72,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

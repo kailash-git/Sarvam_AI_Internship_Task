@@ -6,8 +6,8 @@ _Deterministic run: echo ASR + rule-based formatter + fixed `config.json`._
 
 | Metric | Value |
 |---|---|
-| Cases | 28 |
-| Passed | 28 (100.0%) |
+| Cases | 40 |
+| Passed | 40 (100.0%) |
 | Action accuracy | 100.0% |
 | Exact output match | 100.0% |
 | **Intervention precision** | **100.0%** |
@@ -16,16 +16,16 @@ _Deterministic run: echo ASR + rule-based formatter + fixed `config.json`._
 | **Non-intervention accuracy** | **100.0%** |
 | Defer accuracy | 100.0% |
 | Over-intervention count | 0 |
-| Memory-stability pass | 6/6 |
+| Memory-stability pass | 11/11 |
 | Idempotency pass | 1/1 |
 
 ## Latency / model usage / cost
 
 | Metric | Value |
 |---|---|
-| Latency p50 | 3.145 ms |
-| Latency p95 | 14.52 ms |
-| Latency max | 14.56 ms |
+| Latency p50 | 2.725 ms |
+| Latency p95 | 6.43 ms |
+| Latency max | 1534.65 ms |
 | Total model calls | 0 |
 | Total est. cost | $0.0 |
 
@@ -45,13 +45,16 @@ _Deterministic run: echo ASR + rule-based formatter + fixed `config.json`._
 | exact_match | 1 / 1 |
 | explicit_correction | 1 / 1 |
 | fuzzy_match | 1 / 1 |
+| homophone | 6 / 6 |
 | idempotency | 1 / 1 |
+| memory_stability | 1 / 1 |
 | multi_entity | 1 / 1 |
 | new_word | 1 / 1 |
 | normalized_match | 1 / 1 |
 | personal_phonetics | 5 / 5 |
 | phonetic_match | 1 / 1 |
 | repeated_observation | 1 / 1 |
+| semantic_context | 5 / 5 |
 | strong_memory | 1 / 1 |
 | user_confirmation | 1 / 1 |
 | user_rejection | 2 / 2 |
@@ -99,11 +102,23 @@ _Deterministic run: echo ASR + rule-based formatter + fixed `config.json`._
 | personal-learn-01 | personal_phonetics | REPLACE | REPLACE | yes | PASS | Replaced 'lehan' with 'Rehan': personal match (surface 0.88) to an active memory (confiden |
 | personal-prior-01 | personal_phonetics | REPLACE | REPLACE | yes | PASS | Replaced 'sibi' with 'Sivi': exact match (surface 1.00) to an active memory (confidence 0. |
 | personal-tiebreak-01 | personal_phonetics | REPLACE | REPLACE | yes | PASS | Replaced 'civi' with 'Kivi': phonetic match (surface 0.85) to an active memory (confidence |
-| personal-safety-01 | personal_phonetics | KEEP | KEEP | yes | PASS | Kept 'kiwi'. 'Kivi' matched but the combined score (0.25) is below the defer threshold (0. |
+| personal-safety-01 | personal_phonetics | KEEP | KEEP | yes | PASS | Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words matc |
 | personal-noop-01 | personal_phonetics | KEEP | KEEP | yes | PASS | no candidate matched this span |
+| semantic-01 | semantic_context | KEEP | KEEP | yes | PASS | Kept 'Kivi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words matc |
+| semantic-02 | semantic_context | KEEP | KEEP | yes | PASS | Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words matc |
+| semantic-03 | semantic_context | REPLACE | REPLACE | yes | PASS | Replaced 'kiwi' with 'Kivi': exact match (surface 1.00) to an active memory (confidence 0. |
+| semantic-04 | semantic_context | KEEP | KEEP | yes | PASS | Kept 'Kivi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words matc |
+| semantic-05 | semantic_context | KEEP | KEEP | yes | PASS | Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words matc |
+| homophone-01 | homophone | KEEP | KEEP | yes | PASS | Kept 'see'. Grammar: 'see' is in a verb slot here, which is 'see'. 'sea' left as written. |
+| homophone-02 | homophone | REPLACE | REPLACE | yes | PASS | Replaced 'see' with 'sea': exact match (surface 1.00) to an active memory (confidence 0.70 |
+| homophone-03 | homophone | KEEP | KEEP | yes | PASS | Kept 'see'. Grammar: 'see' is in a verb slot here, which is 'see'. 'sea' left as written. |
+| homophone-04 | homophone | REPLACE | REPLACE | yes | PASS | Replaced 'no' with 'know': exact match (surface 1.00) to an active memory (confidence 0.70 |
+| homophone-05 | homophone | KEEP | KEEP | yes | PASS | Kept 'no'. Grammar: 'no' is in a determiner slot here, which is 'no'. 'know' left as writt |
+| homophone-06 | homophone | KEEP | KEEP | yes | PASS | Kept 'son'. Grammar: 'Sun' and 'son' are both nouns - the sentence structure can't tell th |
+| stability-01 | memory_stability | REPLACE | REPLACE | yes | PASS | Replaced 'Son' with 'Sun': exact match (surface 1.00) to an active memory (confidence 0.70 |
 
 ## Failures
 
 _None - all cases passed._
 
-_Generated 2026-09-08 08:30:38 local._
+_Generated 2026-09-09 22:19:11 local._

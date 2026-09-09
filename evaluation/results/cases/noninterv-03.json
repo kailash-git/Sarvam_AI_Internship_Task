@@ -20,7 +20,7 @@
   "expect_reason_contains": null,
   "personal": null,
   "passed": true,
-  "latency_ms": 2.07,
+  "latency_ms": 2.41,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

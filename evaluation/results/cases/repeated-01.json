@@ -33,8 +33,85 @@
     "rules": [],
     "note": null
   },
+  "memory_state": {
+    "subject": "Lumen",
+    "before": {
+      "canonical_form": "Lumen",
+      "exists": true,
+      "entity_type": "term",
+      "status": "proposed",
+      "confidence": 0.3787,
+      "aliases": [
+        "Lumen"
+      ],
+      "positive_contexts": {
+        "domains": [
+          "software"
+        ],
+        "keywords": [
+          "open",
+          "panel"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": []
+      },
+      "evidence_counts": {
+        "weak_positive": 3
+      }
+    },
+    "after": {
+      "canonical_form": "Lumen",
+      "exists": true,
+      "entity_type": "term",
+      "status": "proposed",
+      "confidence": 0.3787,
+      "aliases": [
+        "Lumen"
+      ],
+      "positive_contexts": {
+        "domains": [
+          "software"
+        ],
+        "keywords": [
+          "open",
+          "panel"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": []
+      },
+      "evidence_counts": {
+        "weak_positive": 3
+      }
+    },
+    "table_counts_before": {
+      "memory": 6,
+      "alias": 13,
+      "observation": 21,
+      "evidence": 21,
+      "request": 0,
+      "decision": 0,
+      "sound_pattern": 1
+    },
+    "table_counts_after": {
+      "memory": 6,
+      "alias": 13,
+      "observation": 21,
+      "evidence": 21,
+      "request": 1,
+      "decision": 1,
+      "sound_pattern": 1
+    },
+    "growth_during_processing": {
+      "request": 1,
+      "decision": 1
+    }
+  },
   "passed": true,
-  "latency_ms": 2.45,
+  "latency_ms": 2.99,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

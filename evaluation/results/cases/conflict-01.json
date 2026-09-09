@@ -33,8 +33,85 @@
     "rules": [],
     "note": null
   },
+  "memory_state": {
+    "subject": "Kayo",
+    "before": {
+      "canonical_form": "Kayo",
+      "exists": true,
+      "entity_type": "term",
+      "status": "active",
+      "confidence": 0.7,
+      "aliases": [
+        "kaya",
+        "Kayo"
+      ],
+      "positive_contexts": {
+        "domains": [
+          "people"
+        ],
+        "keywords": [
+          "call"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": []
+      },
+      "evidence_counts": {
+        "strong_positive": 1
+      }
+    },
+    "after": {
+      "canonical_form": "Kayo",
+      "exists": true,
+      "entity_type": "term",
+      "status": "active",
+      "confidence": 0.7,
+      "aliases": [
+        "kaya",
+        "Kayo"
+      ],
+      "positive_contexts": {
+        "domains": [
+          "people"
+        ],
+        "keywords": [
+          "call"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": []
+      },
+      "evidence_counts": {
+        "strong_positive": 1
+      }
+    },
+    "table_counts_before": {
+      "memory": 7,
+      "alias": 16,
+      "observation": 20,
+      "evidence": 20,
+      "request": 0,
+      "decision": 0,
+      "sound_pattern": 3
+    },
+    "table_counts_after": {
+      "memory": 7,
+      "alias": 16,
+      "observation": 20,
+      "evidence": 20,
+      "request": 1,
+      "decision": 1,
+      "sound_pattern": 3
+    },
+    "growth_during_processing": {
+      "request": 1,
+      "decision": 1
+    }
+  },
   "passed": true,
-  "latency_ms": 7.64,
+  "latency_ms": 4.39,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

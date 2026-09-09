@@ -33,8 +33,111 @@
     "rules": [],
     "note": null
   },
+  "memory_state": {
+    "subject": "Sivi",
+    "before": {
+      "canonical_form": "Sivi",
+      "exists": true,
+      "entity_type": "person",
+      "status": "active",
+      "confidence": 0.9101,
+      "aliases": [
+        "seavey",
+        "sibi",
+        "Sivi",
+        "siviee",
+        "sivvy"
+      ],
+      "positive_contexts": {
+        "domains": [
+          "people"
+        ],
+        "keywords": [
+          "told",
+          "meeting",
+          "review",
+          "call",
+          "said",
+          "asked",
+          "colleague",
+          "team",
+          "sync",
+          "spoke"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": []
+      },
+      "evidence_counts": {
+        "strong_positive": 5,
+        "weak_positive": 1
+      }
+    },
+    "after": {
+      "canonical_form": "Sivi",
+      "exists": true,
+      "entity_type": "person",
+      "status": "active",
+      "confidence": 0.9101,
+      "aliases": [
+        "seavey",
+        "sibi",
+        "Sivi",
+        "siviee",
+        "sivvy"
+      ],
+      "positive_contexts": {
+        "domains": [
+          "people"
+        ],
+        "keywords": [
+          "told",
+          "meeting",
+          "review",
+          "call",
+          "said",
+          "asked",
+          "colleague",
+          "team",
+          "sync",
+          "spoke"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": []
+      },
+      "evidence_counts": {
+        "strong_positive": 5,
+        "weak_positive": 1
+      }
+    },
+    "table_counts_before": {
+      "memory": 5,
+      "alias": 15,
+      "observation": 21,
+      "evidence": 21,
+      "request": 0,
+      "decision": 0,
+      "sound_pattern": 6
+    },
+    "table_counts_after": {
+      "memory": 5,
+      "alias": 15,
+      "observation": 21,
+      "evidence": 21,
+      "request": 1,
+      "decision": 2,
+      "sound_pattern": 6
+    },
+    "growth_during_processing": {
+      "request": 1,
+      "decision": 2
+    }
+  },
   "passed": true,
-  "latency_ms": 12.73,
+  "latency_ms": 5.59,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

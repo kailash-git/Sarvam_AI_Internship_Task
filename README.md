@@ -17,8 +17,85 @@ The dictionary is **not** a replacement list. A match only **nominates a candida
 deterministic engine then decides **REPLACE / KEEP / DEFER** and records the scores,
 evidence and a plain-English reason for every word.
 
-**Run it:** [`RUN.md`](RUN.md) — `python manage.py {reset|serve|eval|process}`
-· Committed results: [`evaluation/results/report.md`](evaluation/results/report.md)
+---
+
+## Quick start
+
+Python 3.11+. No env vars, no API key, no Docker, no network — the embedding model is
+vendored in the repo.
+
+```bash
+python -m venv .venv
+source .venv/Scripts/activate      # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+
+python manage.py reset             # migrate + seed  -> memory=5, alias=12, sound_pattern=1
+python manage.py serve             # http://127.0.0.1:8000
+```
+
+```bash
+python manage.py eval                          # 40 cases -> evaluation/results/
+python -m unittest discover -s tests -p "test_basic.py"   # 32 tests
+python manage.py process "open the kiwi service"          # one-shot, no server
+```
+
+**First things to try** in the **Transcribe** tab:
+
+| type this | expect |
+|---|---|
+| `open the kiwi service` | `Open the **Kivi** service.` — memory + context |
+| `I ate a kiwi today` | *unchanged* — deliberate non-intervention |
+| `Kivi is edible` | *unchanged* — "edible" is in no list; the embedding model catches it |
+| `ask civi` | *DEFER* — genuine ambiguity |
+| click any word → **Save fix** | teaches a correction, line re-processes |
+
+Full detail — every command, the 10-point setup contract, reset procedure:
+[`RUN.md`](RUN.md)
+
+---
+
+## Where to look
+
+**In the UI** (`python manage.py serve` → <http://127.0.0.1:8000>), three tabs:
+
+| tab | what it shows |
+|---|---|
+| **Transcribe** | the three transcript levels; every word is clickable → its action, score and plain-English reason, then **Save fix** (teach a correction) or **Keep "x"** (teach a scoped rejection). The line re-processes instantly. This is the only place memories are taught. |
+| **Memory** | live memory state — status, confidence, every alias, positive/negative contexts, evidence rows, observations; **promote** / **retire** a row. Top panel is the learned **accent profile**. **Reset memory** restores the seed. |
+| **Evaluation** | **Load results** renders the committed `report.md` in full — headline metrics, latency/cost, **storage**, by-category, per-case table, failures. |
+
+**On disk**
+
+| path | what it is |
+|---|---|
+| [`evaluation/dataset/cases.jsonl`](evaluation/dataset/cases.jsonl) | the 40 cases — input, target span, expected action + output, optional `setup` observations |
+| [`evaluation/run.py`](evaluation/run.py) | the harness: reset → apply setup → run pipeline → compare → record |
+| [`evaluation/results/report.md`](evaluation/results/report.md) | human-readable report |
+| [`evaluation/results/summary.json`](evaluation/results/summary.json) | headline, latency, model usage, **storage**, by-category, failures |
+| `evaluation/results/cases/<id>.json` | **one file per case** — see below |
+| `evaluation/results/failures/<id>.json` | one file per failing case (**currently 0**) |
+
+**Every case file preserves**, per the brief: `input` · `expected_output` / `actual_output` ·
+`expected_action` / `actual_action` · `reason` (the decision, in English) · `scores`
+(`s_surf`, `s_ctx_pos/neg`, `s_ctx_semantic`, `confidence`, `combined`) · `memory_state`
+(**before and after**: status, confidence, aliases, contexts, evidence counts, table growth) ·
+`personal` (accent contribution) · `latency_ms`, `model_calls`, `est_cost_usd`.
+
+### What the brief asks of the evaluation, and where it is answered
+
+| the ask | where |
+|---|---|
+| tests the actual product claim | every case runs the real pipeline end to end, formatted → memory-aware |
+| distinguishes **useful learning from unnecessary intervention** | `intervention_precision / recall / f1` **and** `non_intervention_accuracy`, `over_intervention_count` — reported separately in `summary.json` |
+| cases beyond the brief's example | 40 cases across **24 categories**; the brief's example is not among them |
+| conclusions reproducible | deterministic — echo ASR, rule formatter, fixed `config.json`, fixed model weights. Re-running yields identical `summary.json` |
+| **memory state** inspectable | Memory tab (live) **+** `memory_state.before/after` in all 40 case files |
+| **model decisions** inspectable | closed reason vocabulary + full score breakdown, per case and in the UI |
+| latency, cost, **storage** measured honestly | `latency_ms` p50/p95/max · `model_usage` (0 calls, $0) · `storage` (DB size, seed counts, growth from processing, **read-only-processing violations**) |
+
+The storage block does real work: processing across all 40 cases grew only
+`request` + `decision` (history), never `memory`/`alias`/`evidence`/`sound_pattern` — the
+read-only-processing invariant is *measured*, not merely claimed.
 
 ---
 

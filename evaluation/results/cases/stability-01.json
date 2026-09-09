@@ -33,8 +33,97 @@
     "rules": [],
     "note": null
   },
+  "memory_state": {
+    "subject": "Sun",
+    "before": {
+      "canonical_form": "Sun",
+      "exists": true,
+      "entity_type": "term",
+      "status": "active",
+      "confidence": 0.7,
+      "aliases": [
+        "son",
+        "Sun"
+      ],
+      "positive_contexts": {
+        "domains": [],
+        "keywords": [
+          "son",
+          "glows"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": [
+          "son",
+          "home",
+          "doctor",
+          "studying",
+          "law"
+        ]
+      },
+      "evidence_counts": {
+        "strong_positive": 1,
+        "negative_context": 3
+      }
+    },
+    "after": {
+      "canonical_form": "Sun",
+      "exists": true,
+      "entity_type": "term",
+      "status": "active",
+      "confidence": 0.7,
+      "aliases": [
+        "son",
+        "Sun"
+      ],
+      "positive_contexts": {
+        "domains": [],
+        "keywords": [
+          "son",
+          "glows"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": [
+          "son",
+          "home",
+          "doctor",
+          "studying",
+          "law"
+        ]
+      },
+      "evidence_counts": {
+        "strong_positive": 1,
+        "negative_context": 3
+      }
+    },
+    "table_counts_before": {
+      "memory": 6,
+      "alias": 14,
+      "observation": 22,
+      "evidence": 22,
+      "request": 0,
+      "decision": 0,
+      "sound_pattern": 2
+    },
+    "table_counts_after": {
+      "memory": 6,
+      "alias": 14,
+      "observation": 22,
+      "evidence": 22,
+      "request": 1,
+      "decision": 1,
+      "sound_pattern": 2
+    },
+    "growth_during_processing": {
+      "request": 1,
+      "decision": 1
+    }
+  },
   "passed": true,
-  "latency_ms": 5.29,
+  "latency_ms": 4.24,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

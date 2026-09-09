@@ -33,8 +33,41 @@
     "rules": [],
     "note": null
   },
+  "memory_state": {
+    "subject": "sarwam",
+    "before": {
+      "canonical_form": "sarwam",
+      "exists": false
+    },
+    "after": {
+      "canonical_form": "sarwam",
+      "exists": false
+    },
+    "table_counts_before": {
+      "memory": 5,
+      "alias": 12,
+      "observation": 18,
+      "evidence": 18,
+      "request": 0,
+      "decision": 0,
+      "sound_pattern": 1
+    },
+    "table_counts_after": {
+      "memory": 5,
+      "alias": 12,
+      "observation": 18,
+      "evidence": 18,
+      "request": 1,
+      "decision": 1,
+      "sound_pattern": 1
+    },
+    "growth_during_processing": {
+      "request": 1,
+      "decision": 1
+    }
+  },
   "passed": true,
-  "latency_ms": 10.69,
+  "latency_ms": 1.97,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

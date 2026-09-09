@@ -33,8 +33,145 @@
     "rules": [],
     "note": null
   },
+  "memory_state": {
+    "subject": "Kivi",
+    "before": {
+      "canonical_form": "Kivi",
+      "exists": true,
+      "entity_type": "product",
+      "status": "active",
+      "confidence": 0.9227,
+      "aliases": [
+        "kivee",
+        "Kivi",
+        "kivy",
+        "kiwi",
+        "kiwie"
+      ],
+      "positive_contexts": {
+        "domains": [
+          "software"
+        ],
+        "keywords": [
+          "deploy",
+          "service",
+          "open",
+          "app",
+          "build",
+          "backend",
+          "server",
+          "assistant",
+          "voice",
+          "restart",
+          "api",
+          "dashboard"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [
+          "food"
+        ],
+        "keywords": [
+          "ate",
+          "eat",
+          "eating",
+          "fruit",
+          "juice",
+          "salad",
+          "tree",
+          "grocery",
+          "snack",
+          "peel",
+          "seeds",
+          "tasty"
+        ]
+      },
+      "evidence_counts": {
+        "strong_positive": 5,
+        "weak_positive": 2
+      }
+    },
+    "after": {
+      "canonical_form": "Kivi",
+      "exists": true,
+      "entity_type": "product",
+      "status": "active",
+      "confidence": 0.9227,
+      "aliases": [
+        "kivee",
+        "Kivi",
+        "kivy",
+        "kiwi",
+        "kiwie"
+      ],
+      "positive_contexts": {
+        "domains": [
+          "software"
+        ],
+        "keywords": [
+          "deploy",
+          "service",
+          "open",
+          "app",
+          "build",
+          "backend",
+          "server",
+          "assistant",
+          "voice",
+          "restart",
+          "api",
+          "dashboard"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [
+          "food"
+        ],
+        "keywords": [
+          "ate",
+          "eat",
+          "eating",
+          "fruit",
+          "juice",
+          "salad",
+          "tree",
+          "grocery",
+          "snack",
+          "peel",
+          "seeds",
+          "tasty"
+        ]
+      },
+      "evidence_counts": {
+        "strong_positive": 5,
+        "weak_positive": 2
+      }
+    },
+    "table_counts_before": {
+      "memory": 5,
+      "alias": 14,
+      "observation": 20,
+      "evidence": 20,
+      "request": 0,
+      "decision": 0,
+      "sound_pattern": 3
+    },
+    "table_counts_after": {
+      "memory": 5,
+      "alias": 14,
+      "observation": 20,
+      "evidence": 20,
+      "request": 1,
+      "decision": 1,
+      "sound_pattern": 3
+    },
+    "growth_during_processing": {
+      "request": 1,
+      "decision": 1
+    }
+  },
   "passed": true,
-  "latency_ms": 19.91,
+  "latency_ms": 3.85,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

@@ -23,13 +23,22 @@ _Deterministic run: echo ASR + rule-based formatter + fixed `config.json`._
 
 | Metric | Value |
 |---|---|
-| Latency p50 | 6.56 ms |
-| Latency p95 | 20.37 ms |
-| Latency max | 1792.79 ms |
+| Latency p50 | 3.235 ms |
+| Latency p95 | 7.83 ms |
+| Latency max | 1060.8 ms |
 | Total model calls | 0 |
 | Total est. cost | $0.0 |
 
 > 0 by design: echo ASR + rule-based formatter, no LLM in the core path
+
+## Storage / database growth
+
+- Database file: `kivi.db` - **96.0 KB** after reset to seed
+- Seed table counts: `{'memory': 5, 'alias': 12, 'observation': 18, 'evidence': 18, 'request': 0, 'decision': 0, 'sound_pattern': 1}`
+- Growth caused by *processing* across all cases: `{'request': 41, 'decision': 39}`
+- Read-only-processing violations: **none - invariant holds**
+
+Every case resets to seed, so these deltas are what running the pipeline added. Only `request` and `decision` (history/explainability) may grow; growth in memory/alias/evidence/observation/sound_pattern would break the read-only-processing invariant. Learning writes only via /api/observe.
 
 ## By category
 
@@ -121,4 +130,4 @@ _Deterministic run: echo ASR + rule-based formatter + fixed `config.json`._
 
 _None - all cases passed._
 
-_Generated 2026-09-09 22:47:31 local._
+_Generated 2026-09-09 23:06:21 local._

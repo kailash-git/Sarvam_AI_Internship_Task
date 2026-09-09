@@ -28,7 +28,10 @@ sys.path.insert(0, str(ROOT / "backend"))
 
 from kivi.config import EVAL_RESULTS_DIR  # noqa: E402
 from kivi.db.reset import reset  # noqa: E402
-from kivi.db.store import connect, get_memory_by_norm, table_counts  # noqa: E402
+from kivi.db.store import (  # noqa: E402
+    connect, get_memory_by_norm, table_counts, list_aliases, list_evidence, load_json,
+)
+from kivi.config import DB_PATH  # noqa: E402
 from kivi.normalization import normalize_token  # noqa: E402
 from kivi.memory.learning import observe  # noqa: E402
 from kivi.pipeline import process  # noqa: E402
@@ -43,6 +46,35 @@ def _load_cases() -> list[dict]:
         if line:
             out.append(json.loads(line))
     return out
+
+
+def _memory_snapshot(target: str | None) -> dict | None:
+    """Full inspectable state of the memory a case is about: what Kivi believed,
+    on both axes (confidence = is it real; contexts = where does it apply)."""
+    if not target:
+        return None
+    conn = connect()
+    try:
+        m = get_memory_by_norm(conn, normalize_token(target))
+        if m is None:
+            return {"canonical_form": target, "exists": False}
+        ev = list_evidence(conn, m["id"])
+        kinds: dict[str, int] = {}
+        for e in ev:
+            kinds[e["kind"]] = kinds.get(e["kind"], 0) + 1
+        return {
+            "canonical_form": m["canonical_form"],
+            "exists": True,
+            "entity_type": m["entity_type"],
+            "status": m["status"],
+            "confidence": m["confidence"],
+            "aliases": [a["surface_form"] for a in list_aliases(conn, m["id"])],
+            "positive_contexts": load_json(m["positive_contexts"], {}),
+            "negative_contexts": load_json(m["negative_contexts"], {}),
+            "evidence_counts": kinds,
+        }
+    finally:
+        conn.close()
 
 
 def _decision_for_span(result: dict, span: str) -> dict | None:
@@ -69,6 +101,18 @@ def _failure_category(expected_action, actual_action, expected_out, actual_out) 
     if expected_out != actual_out:
         return "output_mismatch"
     return "other"
+
+
+def _counts() -> dict:
+    conn = connect()
+    try:
+        return table_counts(conn)
+    finally:
+        conn.close()
+
+
+def _growth(before: dict, after: dict) -> dict:
+    return {k: after[k] - before.get(k, 0) for k in after if after[k] != before.get(k, 0)}
 
 
 def run_eval() -> dict:
@@ -100,6 +144,19 @@ def run_eval() -> dict:
                 conf_before = m["confidence"] if m else None
             finally:
                 conn.close()
+
+        # the memory this case is about: stability target, else the taught form
+        subject = (case.get("check_stability")
+                   or next((o.get("chosen_form") for o in case.get("setup", [])
+                            if o.get("chosen_form")), None)
+                   or case.get("target_span"))
+        mem_before = _memory_snapshot(subject)
+
+        conn = connect()
+        try:
+            counts_at_start = table_counts(conn)
+        finally:
+            conn.close()
 
         counts_before = None
         repeat = int(case.get("repeat", 1))
@@ -185,6 +242,14 @@ def run_eval() -> dict:
                  if normalize_token(t["span"]) == normalize_token(case["target_span"])),
                 None,
             ),
+            "memory_state": {
+                "subject": subject,
+                "before": mem_before,
+                "after": _memory_snapshot(subject),
+                "table_counts_before": counts_at_start,
+                "table_counts_after": _counts(),
+                "growth_during_processing": _growth(counts_at_start, _counts()),
+            },
             "passed": passed,
             "latency_ms": result["metrics"]["latency_ms"],
             "model_calls": result["metrics"]["model_calls"],
@@ -203,10 +268,12 @@ def run_eval() -> dict:
                 json.dumps(row, indent=2), encoding="utf-8"
             )
 
+    # Reset BEFORE summarising so the storage block reports true seed-state size
+    # and counts, and leave the DB clean and seeded for the demo.
+    reset()
     summary = _summarize(results, latencies)
     (EVAL_RESULTS_DIR / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     (EVAL_RESULTS_DIR / "report.md").write_text(_report_md(summary, results), encoding="utf-8")
-    reset()  # leave the DB in a clean seeded state for the demo
     return summary
 
 
@@ -284,6 +351,7 @@ def _summarize(results, latencies) -> dict:
             "total_est_cost_usd": round(sum(r["est_cost_usd"] for r in results), 6),
             "note": "0 by design: echo ASR + rule-based formatter, no LLM in the core path",
         },
+        "storage": _storage(results),
         "personal_phonetics": personal_phonetics,
         "by_category": _by_category(results),
         "failures": [
@@ -296,6 +364,40 @@ def _summarize(results, latencies) -> dict:
     }
 
 
+def _storage(results) -> dict:
+    """Honest storage accounting. Each case resets to seed first, so per-case
+    growth is what PROCESSING alone added - which must be request/decision rows
+    only. Any growth in memory/alias/evidence/sound_pattern would mean the
+    read-only-processing invariant was broken."""
+    seed_counts = _counts()
+    mutating = {}
+    for r in results:
+        for tbl, delta in (r["memory_state"]["growth_during_processing"] or {}).items():
+            if delta:
+                mutating.setdefault(tbl, 0)
+                mutating[tbl] += delta
+    learned_tables = {"memory", "alias", "evidence", "observation", "sound_pattern"}
+    violations = {t: n for t, n in mutating.items() if t in learned_tables}
+    try:
+        db_bytes = DB_PATH.stat().st_size
+    except OSError:
+        db_bytes = None
+    return {
+        "db_file": str(DB_PATH.name),
+        "db_bytes_after_reset": db_bytes,
+        "db_kb_after_reset": round(db_bytes / 1024, 1) if db_bytes else None,
+        "seed_table_counts": seed_counts,
+        "growth_from_processing_all_cases": mutating,
+        "read_only_processing_violations": violations,
+        "note": (
+            "Every case resets to seed, so these deltas are what running the pipeline "
+            "added. Only `request` and `decision` (history/explainability) may grow; "
+            "growth in memory/alias/evidence/observation/sound_pattern would break the "
+            "read-only-processing invariant. Learning writes only via /api/observe."
+        ),
+    }
+
+
 def _by_category(results) -> dict:
     cats: dict[str, dict] = {}
     for r in results:
@@ -303,6 +405,22 @@ def _by_category(results) -> dict:
         c["total"] += 1
         c["passed"] += int(r["passed"])
     return cats
+
+
+def _storage_md(summary) -> list[str]:
+    st = summary["storage"]
+    ok = "none - invariant holds" if not st["read_only_processing_violations"]         else str(st["read_only_processing_violations"])
+    return [
+        "",
+        "## Storage / database growth",
+        "",
+        f"- Database file: `{st['db_file']}` - **{st['db_kb_after_reset']} KB** after reset to seed",
+        f"- Seed table counts: `{st['seed_table_counts']}`",
+        f"- Growth caused by *processing* across all cases: `{st['growth_from_processing_all_cases']}`",
+        f"- Read-only-processing violations: **{ok}**",
+        "",
+        st["note"],
+    ]
 
 
 def _report_md(summary, results) -> str:
@@ -340,6 +458,7 @@ def _report_md(summary, results) -> str:
         f"| Total est. cost | ${summary['model_usage']['total_est_cost_usd']} |",
         "",
         f"> {summary['model_usage']['note']}",
+        *_storage_md(summary),
         "",
         "## By category",
         "",

@@ -15,14 +15,34 @@
     "idempotency_pass": "1/1"
   },
   "latency_ms": {
-    "p50": 6.56,
-    "p95": 20.37,
-    "max": 1792.79
+    "p50": 3.235,
+    "p95": 7.83,
+    "max": 1060.8
   },
   "model_usage": {
     "total_model_calls": 0,
     "total_est_cost_usd": 0.0,
     "note": "0 by design: echo ASR + rule-based formatter, no LLM in the core path"
+  },
+  "storage": {
+    "db_file": "kivi.db",
+    "db_bytes_after_reset": 98304,
+    "db_kb_after_reset": 96.0,
+    "seed_table_counts": {
+      "memory": 5,
+      "alias": 12,
+      "observation": 18,
+      "evidence": 18,
+      "request": 0,
+      "decision": 0,
+      "sound_pattern": 1
+    },
+    "growth_from_processing_all_cases": {
+      "request": 41,
+      "decision": 39
+    },
+    "read_only_processing_violations": {},
+    "note": "Every case resets to seed, so these deltas are what running the pipeline added. Only `request` and `decision` (history/explainability) may grow; growth in memory/alias/evidence/observation/sound_pattern would break the read-only-processing invariant. Learning writes only via /api/observe."
   },
   "personal_phonetics": {
     "cases": 5,

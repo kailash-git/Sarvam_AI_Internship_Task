@@ -33,8 +33,89 @@
     "rules": [],
     "note": null
   },
+  "memory_state": {
+    "subject": "sea",
+    "before": {
+      "canonical_form": "sea",
+      "exists": true,
+      "entity_type": "term",
+      "status": "active",
+      "confidence": 0.7,
+      "aliases": [
+        "sea",
+        "see"
+      ],
+      "positive_contexts": {
+        "domains": [],
+        "keywords": [
+          "sailed",
+          "across",
+          "see",
+          "sea",
+          "huge"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": []
+      },
+      "evidence_counts": {
+        "strong_positive": 2
+      }
+    },
+    "after": {
+      "canonical_form": "sea",
+      "exists": true,
+      "entity_type": "term",
+      "status": "active",
+      "confidence": 0.7,
+      "aliases": [
+        "sea",
+        "see"
+      ],
+      "positive_contexts": {
+        "domains": [],
+        "keywords": [
+          "sailed",
+          "across",
+          "see",
+          "sea",
+          "huge"
+        ]
+      },
+      "negative_contexts": {
+        "domains": [],
+        "keywords": []
+      },
+      "evidence_counts": {
+        "strong_positive": 2
+      }
+    },
+    "table_counts_before": {
+      "memory": 6,
+      "alias": 14,
+      "observation": 20,
+      "evidence": 20,
+      "request": 0,
+      "decision": 0,
+      "sound_pattern": 2
+    },
+    "table_counts_after": {
+      "memory": 6,
+      "alias": 14,
+      "observation": 20,
+      "evidence": 20,
+      "request": 1,
+      "decision": 1,
+      "sound_pattern": 2
+    },
+    "growth_during_processing": {
+      "request": 1,
+      "decision": 1
+    }
+  },
   "passed": true,
-  "latency_ms": 4.69,
+  "latency_ms": 3.08,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

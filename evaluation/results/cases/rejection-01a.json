@@ -1,0 +1,39 @@
+{
+  "id": "rejection-01a",
+  "category": "user_rejection",
+  "description": "after a scoped rejection, that context KEEPs",
+  "input": "I planted a kiwi vine in the garden",
+  "expected_output": "I planted a kiwi vine in the garden.",
+  "actual_output": "I planted a kiwi vine in the garden.",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 0.80). 'Kivi' is unaffected.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.8,
+    "s_ctx": -0.8,
+    "confidence": 0.841,
+    "combined": 0.0
+  },
+  "asr_text": "i planted a kiwi vine in the garden",
+  "formatted_text": "I planted a kiwi vine in the garden.",
+  "memory_aware_text": "I planted a kiwi vine in the garden.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": true,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 5.8,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

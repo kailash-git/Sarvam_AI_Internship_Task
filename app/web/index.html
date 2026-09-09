@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kivi Phonetic Memory</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #fff; --ink: #1a1a1a; --dim: #6b7280;
+    --line: #e4e4e0; --accent: #2f6f4f; --accent-soft: #e6f2ea;
+    --warn: #9a6700; --warn-soft: #fdf3e0; --bad: #b42318; --bad-soft: #fdeceb;
+    --chip: #eef0ee; --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 20px 28px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; background: var(--panel); }
+  header h1 { font-size: 17px; margin: 0; font-weight: 650; }
+  header .sub { color: var(--dim); font-size: 13px; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--chip);
+    color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 28px 80px; display: grid; gap: 22px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 20px; }
+  .panel h2 { font-size: 13px; margin: 0 0 14px; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--dim); font-weight: 650; }
+  label { display: block; font-size: 12px; color: var(--dim); margin: 10px 0 4px; }
+  textarea, input[type=text], select {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+    font: inherit; background: #fff; color: var(--ink); resize: vertical; }
+  textarea { min-height: 46px; }
+  button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+    background: #fff; cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button.ghost { background: transparent; }
+  button:active { transform: translateY(1px); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  .statline { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--dim); }
+  .statline b { color: var(--ink); }
+  .out { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 14px; }
+  .transcript { font-size: 15px; padding: 6px 0; }
+  .transcript .lbl { color: var(--dim); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .05em; display: block; }
+  ins { background: var(--accent-soft); text-decoration: none; border-radius: 3px; padding: 0 2px;
+    box-shadow: inset 0 -2px var(--accent); }
+  del { background: var(--bad-soft); color: var(--bad); border-radius: 3px; padding: 0 2px; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .pill.on { background: var(--accent-soft); color: var(--accent); }
+  .pill.off { background: var(--chip); color: var(--dim); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line);
+    vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); }
+  .tag { font-size: 11px; padding: 1px 7px; border-radius: 999px; }
+  .tag.apply { background: var(--accent-soft); color: var(--accent); }
+  .tag.skip { background: var(--warn-soft); color: var(--warn); }
+  .tag.active { background: var(--accent-soft); color: var(--accent); }
+  .tag.candidate { background: var(--warn-soft); color: var(--warn); }
+  .tag.suppressed { background: var(--bad-soft); color: var(--bad); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .conf { height: 6px; width: 60px; background: var(--chip); border-radius: 3px; overflow: hidden; }
+  .conf > i { display: block; height: 100%; background: var(--accent); }
+  .muted { color: var(--dim); }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .tabs button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .hidden { display: none; }
+  details { margin: 4px 0; }
+  summary { cursor: pointer; }
+  .err { color: var(--bad); font-size: 12px; margin-top: 8px; }
+  .example-btn { font-size: 12px; padding: 4px 9px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Kivi · Phonetic Memory</h1>
+  <span class="sub">word-level memory that moves a transcript from <em>formatted</em> to <em>memory-aware</em></span>
+  <span class="badge" id="llmBadge">llm: …</span>
+  <span style="flex:1"></span>
+  <button class="ghost" id="resetBtn" title="Wipe all learned state and reload seed data">Reset &amp; reseed</button>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="statline" id="statline">loading…</div>
+  </div>
+
+  <!-- ── Try an utterance ─────────────────────────────────────────── -->
+  <section class="panel">
+    <h2>1 · Speak again — ASR + formatted → memory-aware</h2>
+    <div class="row" style="margin-bottom:6px">
+      <span class="muted" style="font-size:12px">examples:</span>
+      <button class="ghost example-btn" data-ex="brief">brief example</button>
+      <button class="ghost example-btn" data-ex="homophone">homophone (do nothing)</button>
+      <button class="ghost example-btn" data-ex="jargon">jargon</button>
+      <button class="ghost example-btn" data-ex="ambiguous">ambiguous</button>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>ASR output (raw)</label>
+        <textarea id="asr">ask aditya to review the sarvam kiwi service</textarea>
+      </div>
+      <div>
+        <label>Formatted output (after Kivi's LLM)</label>
+        <textarea id="formatted">Ask Aditya to review the Sarvam Kiwi service.</textarea>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="runBtn">Run</button>
+      <button class="ghost" id="fromAsrBtn" title="Fill 'formatted' from a light heuristic">format from ASR</button>
+      <label style="margin:0"><input type="checkbox" id="persist" checked /> persist</label>
+    </div>
+    <div class="out hidden" id="runOut">
+      <div class="transcript"><span class="lbl">formatted</span><span id="tFormatted"></span></div>
+      <div class="transcript"><span class="lbl">memory-aware</span>
+        <span id="tMemory"></span>
+        <span class="pill" id="tIntervened"></span>
+      </div>
+      <table style="margin-top:12px">
+        <thead><tr><th>decision</th><th>span</th><th>→ canonical</th><th>reason</th>
+          <th>phonetic</th><th>score / thr</th><th>detail</th></tr></thead>
+        <tbody id="decRows"></tbody>
+      </table>
+    </div>
+    <div class="err hidden" id="runErr"></div>
+  </section>
+
+  <!-- ── Teach ────────────────────────────────────────────────────── -->
+  <section class="panel">
+    <h2>2 · Teach Kivi (provide an observation)</h2>
+    <div class="tabs">
+      <button data-tab="correction" class="active">correction</button>
+      <button data-tab="dictionary">dictionary word</button>
+      <button data-tab="reject">reject an entry</button>
+    </div>
+
+    <div id="tab-correction">
+      <div class="grid2">
+        <div><label>formatted text (what Kivi produced)</label>
+          <textarea id="c_formatted">Tell Aditya about the release.</textarea></div>
+        <div><label>corrected text (what the user wants)</label>
+          <textarea id="c_corrected">Tell Aaditya about the release.</textarea></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>ASR (optional)</label><input type="text" id="c_asr" /></div>
+        <div><label>category</label>
+          <select id="c_category">
+            <option>person</option><option>org</option><option>product</option>
+            <option>term</option><option selected>other</option>
+          </select></div>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="c_submit">Learn from correction</button></div>
+    </div>
+
+    <div id="tab-dictionary" class="hidden">
+      <div class="row">
+        <div style="flex:2"><label>canonical form</label><input type="text" id="d_canonical" value="Kivi" /></div>
+        <div><label>category</label>
+          <select id="d_category">
+            <option>person</option><option>org</option><option selected>product</option>
+            <option>term</option><option>other</option>
+          </select></div>
+      </div>
+      <label>aliases / known mis-hearings (comma-separated)</label>
+      <input type="text" id="d_aliases" value="kiwi, kiwwi" />
+      <label>note (optional)</label>
+      <input type="text" id="d_note" value="Sarvam's dictation product." />
+      <div class="row" style="margin-top:10px"><button class="primary" id="d_submit">Add word</button></div>
+    </div>
+
+    <div id="tab-reject" class="hidden">
+      <label>entry id to reject (from the memory table below)</label>
+      <div class="row">
+        <input type="text" id="r_id" style="max-width:120px" />
+        <input type="text" id="r_note" placeholder="why (optional)" />
+        <button class="primary" id="r_submit">Record rejection</button>
+      </div>
+      <p class="muted" style="font-size:12px">Two rejections suppress an entry — it stays visible but is never applied.</p>
+    </div>
+
+    <div class="out hidden" id="teachOut"></div>
+  </section>
+
+  <!-- ── Memory state ─────────────────────────────────────────────── -->
+  <section class="panel">
+    <h2>3 · Memory state</h2>
+    <div class="row" style="margin-bottom:10px">
+      <label style="margin:0">filter:</label>
+      <select id="memFilter" style="max-width:180px">
+        <option value="">all</option><option value="active">active</option>
+        <option value="candidate">candidate</option><option value="suppressed">suppressed</option>
+      </select>
+      <button class="ghost" id="memRefresh">refresh</button>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>canonical</th><th>cat</th><th>status</th><th>conf</th>
+        <th>aliases</th><th>note</th><th></th></tr></thead>
+      <tbody id="memRows"></tbody>
+    </table>
+  </section>
+
+  <!-- ── Recent utterances ───────────────────────────────────────── -->
+  <section class="panel">
+    <h2>4 · Recent utterances</h2>
+    <div id="uttList" class="muted">none yet</div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const api = (path, opts) => fetch('/api' + path, {
+  headers: {'content-type': 'application/json'}, ...opts
+}).then(async r => { const j = await r.json(); if (!r.ok) throw new Error(j.detail || r.statusText); return j; });
+
+const EXAMPLES = {
+  brief: ['ask aditya to review the sarvam kiwi service', 'Ask Aditya to review the Sarvam Kiwi service.'],
+  homophone: ['i ate a kiwi for breakfast', 'I ate a kiwi for breakfast.'],
+  jargon: ['lets migrate the model to pie torch and post gres', "Let's migrate the model to Pie Torch and Post Gres."],
+  ambiguous: ['ask jon to sign off', 'Ask Jon to sign off.'],
+};
+
+function esc(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+// word-level diff for the transcript view
+function diff(a, b){
+  const A = a.split(/(\s+)/), B = b.split(/(\s+)/);
+  const n = A.length, m = B.length, dp = Array.from({length:n+1}, ()=>new Array(m+1).fill(0));
+  for (let i=n-1;i>=0;i--) for (let j=m-1;j>=0;j--)
+    dp[i][j] = A[i]===B[j] ? dp[i+1][j+1]+1 : Math.max(dp[i+1][j], dp[i][j+1]);
+  let i=0,j=0,out='';
+  while (i<n && j<m){
+    if (A[i]===B[j]){ out+=esc(A[i]); i++; j++; }
+    else if (dp[i+1][j] >= dp[i][j+1]){ if(A[i].trim()) out+='<del>'+esc(A[i])+'</del>'; i++; }
+    else { if(B[j].trim()) out+='<ins>'+esc(B[j])+'</ins>'; j++; }
+  }
+  while (i<n){ if(A[i].trim()) out+='<del>'+esc(A[i])+'</del>'; i++; }
+  while (j<m){ if(B[j].trim()) out+='<ins>'+esc(B[j])+'</ins>'; j++; }
+  return out;
+}
+
+async function refreshStats(){
+  const h = await api('/health');
+  $('#llmBadge').textContent = 'llm: ' + h.llm_mode;
+  const s = h.db;
+  $('#statline').innerHTML =
+    `entries <b>${s.entries_total}</b> &nbsp;·&nbsp; active <b>${s.entries_active}</b> ` +
+    `&nbsp;·&nbsp; candidate <b>${s.entries_candidate}</b> &nbsp;·&nbsp; suppressed <b>${s.entries_suppressed}</b> ` +
+    `&nbsp;·&nbsp; aliases <b>${s.aliases_total}</b> &nbsp;·&nbsp; observations <b>${s.observations_total}</b> ` +
+    `&nbsp;·&nbsp; utterances <b>${s.utterances_total}</b> &nbsp;·&nbsp; ` +
+    `interventions <b>${s.interventions_applied}</b> applied / <b>${s.interventions_declined}</b> declined`;
+}
+
+async function runFormat(){
+  $('#runErr').classList.add('hidden');
+  try {
+    const j = await api('/format', {method:'POST', body: JSON.stringify({
+      asr_text: $('#asr').value, formatted_text: $('#formatted').value,
+      persist: $('#persist').checked,
+    })});
+    $('#runOut').classList.remove('hidden');
+    $('#tFormatted').textContent = j.formatted_text;
+    $('#tMemory').innerHTML = diff(j.formatted_text, j.memory_aware_text);
+    const p = $('#tIntervened');
+    p.textContent = j.intervened ? 'intervened' : 'unchanged';
+    p.className = 'pill ' + (j.intervened ? 'on' : 'off');
+    $('#decRows').innerHTML = j.decisions.map(d => `
+      <tr>
+        <td><span class="tag ${d.action}">${d.action}</span></td>
+        <td class="mono">${esc(d.span_text)}</td>
+        <td class="mono">${esc(d.canonical)}</td>
+        <td><b>${d.reason_tag}</b></td>
+        <td>${d.phonetic_score}</td>
+        <td>${d.combined_score} / ${d.threshold}</td>
+        <td class="muted">${esc(d.detail||'')}</td>
+      </tr>`).join('') || '<tr><td colspan="7" class="muted">no candidates — memory had nothing to say</td></tr>';
+    refreshStats(); loadUtterances();
+  } catch(e){ $('#runErr').textContent = e.message; $('#runErr').classList.remove('hidden'); }
+}
+
+async function loadMemory(){
+  const j = await api('/memory' + ($('#memFilter').value ? '?status='+$('#memFilter').value : ''));
+  $('#memRows').innerHTML = j.entries.map(e => `
+    <tr>
+      <td class="muted">${e.id}</td>
+      <td><b>${esc(e.canonical)}</b></td>
+      <td class="muted">${e.category}</td>
+      <td><span class="tag ${e.status}">${e.status}</span></td>
+      <td><div class="conf" title="${e.confidence}"><i style="width:${Math.round(e.confidence*100)}%"></i></div></td>
+      <td class="mono muted">${e.aliases.map(a=>esc(a.surface_form)).join(', ') || '—'}</td>
+      <td class="muted">${esc(e.note||'')}</td>
+      <td class="row" style="gap:4px">
+        ${e.status!=='active' ? `<button class="ghost example-btn" data-act="active" data-id="${e.id}">activate</button>`:''}
+        ${e.status!=='suppressed' ? `<button class="ghost example-btn" data-act="suppressed" data-id="${e.id}">suppress</button>`:''}
+        <button class="ghost example-btn" data-act="delete" data-id="${e.id}">delete</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8" class="muted">memory is empty</td></tr>';
+}
+
+async function loadUtterances(){
+  const j = await api('/utterances?limit=15');
+  if (!j.utterances.length){ $('#uttList').textContent = 'none yet'; return; }
+  $('#uttList').innerHTML = j.utterances.map(u => `
+    <details>
+      <summary>${u.intervened ? '✎' : '·'} <span class="mono">${esc(u.memory_aware_text)}</span>
+        <span class="muted">— ${u.latency_ms} ms, ${u.llm_calls} llm call(s), ${u.llm_mode}</span></summary>
+      <pre class="mono" style="white-space:pre-wrap; background:#fafaf8; padding:10px; border-radius:8px; overflow-x:auto">${esc(JSON.stringify(u.decision_trace, null, 2))}</pre>
+    </details>`).join('');
+}
+
+$('#runBtn').onclick = runFormat;
+$('#fromAsrBtn').onclick = async () => {
+  const j = await api('/format/from-asr', {method:'POST', body: JSON.stringify({asr_text: $('#asr').value})});
+  $('#formatted').value = j.formatted_text;
+};
+$('#resetBtn').onclick = async () => {
+  if (!confirm('Wipe all learned state and reload seed data?')) return;
+  await api('/reset', {method:'POST', body: JSON.stringify({seed:true})});
+  await Promise.all([refreshStats(), loadMemory(), loadUtterances()]);
+  $('#runOut').classList.add('hidden');
+};
+document.querySelectorAll('.example-btn[data-ex]').forEach(b => b.onclick = () => {
+  const [a,f] = EXAMPLES[b.dataset.ex]; $('#asr').value = a; $('#formatted').value = f;
+});
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('active', x===b));
+  ['correction','dictionary','reject'].forEach(t =>
+    $('#tab-'+t).classList.toggle('hidden', t !== b.dataset.tab));
+});
+
+$('#c_submit').onclick = async () => {
+  const j = await api('/observations/correction', {method:'POST', body: JSON.stringify({
+    asr_text: $('#c_asr').value, formatted_text: $('#c_formatted').value,
+    corrected_text: $('#c_corrected').value, category: $('#c_category').value,
+  })});
+  showTeach(j); refreshStats(); loadMemory();
+};
+$('#d_submit').onclick = async () => {
+  const j = await api('/observations/dictionary', {method:'POST', body: JSON.stringify({
+    canonical: $('#d_canonical').value, category: $('#d_category').value,
+    aliases: $('#d_aliases').value.split(',').map(s=>s.trim()).filter(Boolean),
+    note: $('#d_note').value,
+  })});
+  showTeach(j); refreshStats(); loadMemory();
+};
+$('#r_submit').onclick = async () => {
+  const j = await api('/observations/rejection', {method:'POST', body: JSON.stringify({
+    entry_id: parseInt($('#r_id').value, 10), note: $('#r_note').value,
+  })});
+  showTeach(j); refreshStats(); loadMemory();
+};
+function showTeach(j){
+  const el = $('#teachOut'); el.classList.remove('hidden');
+  el.innerHTML = '<pre class="mono" style="white-space:pre-wrap">' + esc(JSON.stringify(j, null, 2)) + '</pre>';
+}
+$('#memFilter').onchange = loadMemory;
+$('#memRefresh').onclick = loadMemory;
+$('#memRows').onclick = async (ev) => {
+  const btn = ev.target.closest('button[data-act]'); if (!btn) return;
+  const id = btn.dataset.id;
+  if (btn.dataset.act === 'delete'){
+    if (!confirm('Delete entry #'+id+'?')) return;
+    await api('/memory/'+id, {method:'DELETE'});
+  } else {
+    await api('/memory/'+id, {method:'PATCH', body: JSON.stringify({status: btn.dataset.act})});
+  }
+  refreshStats(); loadMemory();
+};
+
+refreshStats(); loadMemory(); loadUtterances();
+</script>
+</body>
+</html>

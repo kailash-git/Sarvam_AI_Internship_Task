@@ -1,0 +1,534 @@
+# Kivi phonetic-memory evaluation dataset.
+#
+# Each case is self-contained. `seed` is the evidence taught before the test
+# runs (applied through the real learning API, in order: corrections,
+# dictionary, reject, delete, accept). `input` is the utterance under test.
+# `expect.memory_aware` is the exact required output; `expect.intervened` is
+# whether memory must change the text; `expect.reason` (optional) is a decision
+# reason tag that must appear — it is how a "did nothing" case proves it did
+# nothing for the *right* reason.
+#
+# clazz:
+#   should_intervene      memory must change the text
+#   should_not_intervene  memory must leave the text alone
+#   ambiguous             evidence is genuinely unclear -> safe move is to do nothing
+
+meta:
+  apply_threshold: 0.72
+  promote_after: 2
+  suppress_after: 2
+  notes: >
+    Two cases are tagged known_limitation in their description: sentence-level
+    food-context guarding, and pure morphological inflection. They are kept in
+    the suite deliberately so the report shows them.
+
+cases:
+
+  # ─────────────────────────── should_intervene ───────────────────────────
+
+  - id: brief_example_multiterm
+    description: The brief's own example — a preferred name spelling and a product name in one utterance.
+    clazz: should_intervene
+    seed:
+      corrections:
+        - {asr: "tell aditya about it", formatted: "Tell Aditya about it.", corrected: "Tell Aaditya about it.", category: person}
+        - {asr: "did aditya reply", formatted: "Did Aditya reply?", corrected: "Did Aaditya reply?", category: person}
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi, kiwwi], note: "Sarvam's dictation product."}
+        - {canonical: Sarvam, category: org, aliases: [servam, sarwam]}
+    input:
+      asr: "ask aditya to review the sarvam kiwi service"
+      formatted: "Ask Aditya to review the Sarvam Kiwi service."
+    expect:
+      memory_aware: "Ask Aaditya to review the Sarvam Kivi service."
+      intervened: true
+      reason: applied
+
+  - id: person_spelling_promoted_after_two
+    description: A name spelling taught by two corrections is promoted to active and then applied.
+    clazz: should_intervene
+    seed:
+      corrections:
+        - {formatted: "Sara will lead.", corrected: "Sarah will lead.", category: person}
+        - {formatted: "Ping Sara now.", corrected: "Ping Sarah now.", category: person}
+    input:
+      asr: "sara owns the rollout"
+      formatted: "Sara owns the rollout."
+    expect:
+      memory_aware: "Sarah owns the rollout."
+      intervened: true
+      reason: applied
+
+  - id: product_casing_from_dictionary
+    description: A dictionary word fixes casing on a lowercase occurrence.
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+    input:
+      asr: "ship the kivi build tonight"
+      formatted: "Ship the kivi build tonight."
+    expect:
+      memory_aware: "Ship the Kivi build tonight."
+      intervened: true
+      reason: applied
+
+  - id: jargon_two_token_alias
+    description: A two-token mis-hearing ("post gres") maps to a one-word canonical via an alias.
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: Postgres, category: term, aliases: ["post gres", postgress], note: "prefers 'Postgres' over 'PostgreSQL'"}
+    input:
+      asr: "move the queue to post gres"
+      formatted: "Move the queue to Post Gres."
+    expect:
+      memory_aware: "Move the queue to Postgres."
+      intervened: true
+      reason: applied
+
+  - id: jargon_pytorch_from_corrections
+    description: Jargon learned only from corrections (no dictionary entry).
+    clazz: should_intervene
+    seed:
+      corrections:
+        - {asr: "port it to pie torch", formatted: "Port it to Pie Torch.", corrected: "Port it to PyTorch.", category: term}
+        - {asr: "the pie torch job failed", formatted: "The Pie Torch job failed.", corrected: "The PyTorch job failed.", category: term}
+    input:
+      asr: "profile the pie torch model"
+      formatted: "Profile the Pie Torch model."
+    expect:
+      memory_aware: "Profile the PyTorch model."
+      intervened: true
+      reason: applied
+
+  - id: brand_lowercase_to_canonical
+    description: Organisation name normalised from a lowercase spoken form.
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: Sarvam, category: org, aliases: [servam, sarwam]}
+    input:
+      asr: "servam shipped the release"
+      formatted: "Servam shipped the release."
+    expect:
+      memory_aware: "Sarvam shipped the release."
+      intervened: true
+      reason: applied
+
+  - id: repeated_term_two_occurrences
+    description: The same entry is applied to every occurrence in the utterance.
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+    input:
+      asr: "restart kivi then redeploy kivi"
+      formatted: "Restart kivi then redeploy kivi."
+    expect:
+      memory_aware: "Restart Kivi then redeploy Kivi."
+      intervened: true
+      reason: applied
+
+  - id: multiword_next_js
+    description: Two-token span maps to a punctuated canonical.
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: "Next.js", category: term, aliases: ["next js", nextjs]}
+    input:
+      asr: "the next js router changed"
+      formatted: "The Next Js router changed."
+    expect:
+      memory_aware: "The Next.js router changed."
+      intervened: true
+      reason: applied
+
+  - id: multiword_type_script
+    description: Two-token span "Type Script" -> "TypeScript".
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: TypeScript, category: term, aliases: ["type script"]}
+    input:
+      asr: "rewrite it in type script"
+      formatted: "Rewrite it in Type Script."
+    expect:
+      memory_aware: "Rewrite it in TypeScript."
+      intervened: true
+      reason: applied
+
+  - id: context_resolves_ambiguity
+    description: Two similar names exist, but the correct one already appears in the sentence.
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: Jon, category: person, aliases: []}
+        - {canonical: John, category: person, aliases: []}
+    input:
+      asr: "remind jon and then tell jhon the plan"
+      formatted: "Remind Jon and then tell Jhon the plan."
+    expect:
+      memory_aware: "Remind Jon and then tell Jon the plan."
+      intervened: true
+      reason: applied
+
+  - id: one_rejection_is_not_enough
+    description: A single rejection does not suppress an active entry (needs two).
+    clazz: should_intervene
+    seed:
+      corrections:
+        - {formatted: "Sara will lead.", corrected: "Sarah will lead.", category: person}
+        - {formatted: "Ping Sara now.", corrected: "Ping Sarah now.", category: person}
+      reject:
+        - {canonical: Sarah, category: person, times: 1}
+    input:
+      asr: "sara approved it"
+      formatted: "Sara approved it."
+    expect:
+      memory_aware: "Sarah approved it."
+      intervened: true
+      reason: applied
+
+  - id: mixed_sentence_two_entries
+    description: Two different entries applied in one sentence, no guard triggered.
+    clazz: should_intervene
+    seed:
+      corrections:
+        - {formatted: "Sara will lead.", corrected: "Sarah will lead.", category: person}
+        - {formatted: "Ping Sara now.", corrected: "Ping Sarah now.", category: person}
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+    input:
+      asr: "tell sara the kivi demo is ready"
+      formatted: "Tell Sara the kivi demo is ready."
+    expect:
+      memory_aware: "Tell Sarah the Kivi demo is ready."
+      intervened: true
+      reason: applied
+
+  - id: org_alias_servam
+    description: Alias match on an organisation name mid-sentence.
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: Sarvam, category: org, aliases: [servam, sarwam]}
+    input:
+      asr: "i met the sarwam founders"
+      formatted: "I met the Sarwam founders."
+    expect:
+      memory_aware: "I met the Sarvam founders."
+      intervened: true
+      reason: applied
+
+  - id: redis_alias
+    description: Common infra term with a plausible mis-hearing.
+    clazz: should_intervene
+    seed:
+      dictionary:
+        - {canonical: Redis, category: term, aliases: [reddis, "red is"]}
+    input:
+      asr: "cache it in reddis"
+      formatted: "Cache it in Reddis."
+    expect:
+      memory_aware: "Cache it in Redis."
+      intervened: true
+      reason: applied
+
+  - id: alias_auto_learned_from_asr
+    description: A correction also captures the rough ASR form as an alias; a later utterance with that exact form is then recognised.
+    clazz: should_intervene
+    seed:
+      corrections:
+        - {asr: "call adhitya now", formatted: "Call Aditya now.", corrected: "Call Aaditya now.", category: person}
+        - {asr: "adhitya is out", formatted: "Aditya is out.", corrected: "Aaditya is out.", category: person}
+    input:
+      asr: "adhitya joins at noon"
+      formatted: "Adhitya joins at noon."
+    expect:
+      memory_aware: "Aaditya joins at noon."
+      intervened: true
+      reason: applied
+
+  # ────────────────────────── should_not_intervene ─────────────────────────
+
+  - id: empty_memory_passthrough
+    description: With nothing taught, every utterance passes through untouched.
+    clazz: should_not_intervene
+    seed: {}
+    input:
+      asr: "ask aditya to review the sarvam kiwi service"
+      formatted: "Ask Aditya to review the Sarvam Kiwi service."
+    expect:
+      memory_aware: "Ask Aditya to review the Sarvam Kiwi service."
+      intervened: false
+
+
+  - id: homophone_food_kiwi
+    description: "'kiwi' the fruit in a clearly food sentence must not become the product."
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+    input:
+      asr: "i ate a kiwi for breakfast"
+      formatted: "I ate a kiwi for breakfast."
+    expect:
+      memory_aware: "I ate a kiwi for breakfast."
+      intervened: false
+      reason: food_context_guard
+
+  - id: homophone_food_kiwi_salad
+    description: Food context via "salad" / "fresh".
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+    input:
+      asr: "the kiwi salad was fresh"
+      formatted: "The kiwi salad was fresh."
+    expect:
+      memory_aware: "The kiwi salad was fresh."
+      intervened: false
+      reason: food_context_guard
+
+  - id: common_word_service
+    description: "'service' rhymes with 'Sarvam' but is an everyday word in an everyday sentence."
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: Sarvam, category: org, aliases: [servam]}
+    input:
+      asr: "the service was slow today"
+      formatted: "The service was slow today."
+    expect:
+      memory_aware: "The service was slow today."
+      intervened: false
+      reason: common_word_guard
+
+  - id: common_word_join
+    description: "'join' is a homophone of 'Jon' but used as a verb."
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: Jon, category: person, aliases: []}
+    input:
+      asr: "please join the standup"
+      formatted: "Please join the standup."
+    expect:
+      memory_aware: "Please join the standup."
+      intervened: false
+      reason: common_word_guard
+
+  - id: common_word_mark
+    description: "Person 'Marc' in memory; 'mark' used as a verb."
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: Marc, category: person, aliases: []}
+    input:
+      asr: "mark the ticket as done"
+      formatted: "Mark the ticket as done."
+    expect:
+      memory_aware: "Mark the ticket as done."
+      intervened: false
+      reason: common_word_guard
+
+  - id: weak_evidence_stays_candidate
+    description: One correction only — entry is a candidate, so Kivi does nothing yet.
+    clazz: should_not_intervene
+    seed:
+      corrections:
+        - {formatted: "Send it to Nikhil.", corrected: "Send it to Nikhhil.", category: person}
+    input:
+      asr: "loop in nikhil please"
+      formatted: "Loop in Nikhil please."
+    expect:
+      memory_aware: "Loop in Nikhil please."
+      intervened: false
+      reason: not_active
+
+  - id: suppressed_entry_not_applied
+    description: An entry rejected twice is suppressed and never applied.
+    clazz: should_not_intervene
+    seed:
+      corrections:
+        - {formatted: "Jane joined.", corrected: "Jayne joined.", category: person}
+      reject:
+        - {canonical: Jayne, category: person, times: 2}
+    input:
+      asr: "jane will present"
+      formatted: "Jane will present."
+    expect:
+      memory_aware: "Jane will present."
+      intervened: false
+      reason: suppressed
+
+  - id: already_canonical_noop
+    description: The text is already correct; nothing to do.
+    clazz: should_not_intervene
+    seed:
+      corrections:
+        - {formatted: "Tell Aditya.", corrected: "Tell Aaditya.", category: person}
+        - {formatted: "Ask Aditya.", corrected: "Ask Aaditya.", category: person}
+    input:
+      asr: "ask aaditya to review it"
+      formatted: "Ask Aaditya to review it."
+    expect:
+      memory_aware: "Ask Aaditya to review it."
+      intervened: false
+      reason: already_canonical
+
+  - id: no_relevant_memory
+    description: A full memory, but nothing in this sentence sounds like any entry.
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+        - {canonical: Sarvam, category: org, aliases: [servam]}
+        - {canonical: Postgres, category: term, aliases: ["post gres"]}
+    input:
+      asr: "the weather is nice today"
+      formatted: "The weather is nice today."
+    expect:
+      memory_aware: "The weather is nice today."
+      intervened: false
+
+  - id: deleted_entry_not_applied
+    description: An entry that was taught and then deleted has no effect.
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: PyTorch, category: term, aliases: ["pie torch"]}
+      delete:
+        - {canonical: PyTorch, category: term}
+    input:
+      asr: "convert it to pie torch"
+      formatted: "Convert it to Pie Torch."
+    expect:
+      memory_aware: "Convert it to Pie Torch."
+      intervened: false
+
+  - id: morphology_plural_known_limitation
+    description: known_limitation — "kiwis" is an inflected form; Kivi matches it phonetically to "Kivi" and rewrites, dropping the plural. A word-level phonetic memory has no morphology model.
+    clazz: should_not_intervene
+    known_limitation: true
+    seed:
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+    input:
+      asr: "i bought two kiwis at the market"
+      formatted: "I bought two kiwis at the market."
+    expect:
+      memory_aware: "I bought two kiwis at the market."
+      intervened: false
+
+  - id: food_guard_is_sentence_level_known_limitation
+    description: known_limitation — the food-context guard is sentence-level, so an eating clause earlier in the sentence suppresses a legitimate later "Kivi". Disentangling the two clauses needs sentence understanding beyond word-level memory.
+    clazz: should_intervene
+    known_limitation: true
+    seed:
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+    input:
+      asr: "i ate lunch then joined the kivi review"
+      formatted: "I ate lunch then joined the kivi review."
+    expect:
+      memory_aware: "I ate lunch then joined the Kivi review."
+      intervened: true
+      reason: applied
+
+  - id: proper_noun_collision_cologne
+    description: A name in memory ("Colin") must not overwrite an unrelated proper noun ("Cologne") that only rhymes in metaphone space.
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: Colin, category: person, aliases: []}
+    input:
+      asr: "we flew to cologne last week"
+      formatted: "We flew to Cologne last week."
+    expect:
+      memory_aware: "We flew to Cologne last week."
+      intervened: false
+      reason: weak_surface_match
+
+  - id: proper_noun_collision_terracotta
+    description: "'Terra' (a person) vs the common word 'terracotta' — letters too far apart for a canonical-only rewrite."
+    clazz: should_not_intervene
+    seed:
+      dictionary:
+        - {canonical: Tara, category: person, aliases: []}
+    input:
+      asr: "the terra cotta pots cracked"
+      formatted: "The Terra cotta pots cracked."
+    expect:
+      memory_aware: "The Terra cotta pots cracked."
+      intervened: false
+      reason: weak_surface_match
+
+  - id: distinct_name_left_alone
+    description: "'Neha' and 'Naya' are different names that share a metaphone bucket; the letters are too far apart to rewrite."
+    clazz: should_not_intervene
+    seed:
+      corrections:
+        - {formatted: "Ask Naia to review.", corrected: "Ask Naya to review.", category: person}
+        - {formatted: "Naia will lead.", corrected: "Naya will lead.", category: person}
+    input:
+      asr: "neha will lead the sync"
+      formatted: "Neha will lead the sync."
+    expect:
+      memory_aware: "Neha will lead the sync."
+      intervened: false
+      reason: weak_surface_match
+
+  - id: long_sentence_mixed_outcomes
+    description: One utterance, four candidate spans — two applied, one already-canonical, one common-word guarded.
+    clazz: should_intervene
+    seed:
+      corrections:
+        - {formatted: "Tell Aditya.", corrected: "Tell Aaditya.", category: person}
+        - {formatted: "Ask Aditya.", corrected: "Ask Aaditya.", category: person}
+      dictionary:
+        - {canonical: Kivi, category: product, aliases: [kiwi]}
+        - {canonical: Sarvam, category: org, aliases: [servam]}
+    input:
+      asr: "ask aditya to service the sarvam kiwi cluster"
+      formatted: "Ask Aditya to service the Sarvam Kiwi cluster."
+    expect:
+      memory_aware: "Ask Aaditya to service the Sarvam Kivi cluster."
+      intervened: true
+      reason: applied
+
+  # ──────────────────────────────── ambiguous ─────────────────────────────
+
+  - id: ambiguous_two_people_no_context
+    description: "'Jhon' sounds equally like 'Jon' and 'John'; no context to break the tie."
+    clazz: ambiguous
+    seed:
+      dictionary:
+        - {canonical: Jon, category: person, aliases: []}
+        - {canonical: John, category: person, aliases: []}
+    input:
+      asr: "ask jhon to sign off"
+      formatted: "Ask Jhon to sign off."
+    expect:
+      memory_aware: "Ask Jhon to sign off."
+      intervened: false
+      reason: ambiguous_conflict
+
+  - id: ambiguous_near_duplicate_spellings
+    description: "'Saara' matches both 'Sara' and 'Sarah' equally; no tie-breaker."
+    clazz: ambiguous
+    seed:
+      corrections:
+        - {formatted: "Sar will lead.", corrected: "Sarah will lead.", category: person}
+        - {formatted: "Ping Sar now.", corrected: "Ping Sarah now.", category: person}
+      dictionary:
+        - {canonical: Sara, category: person, aliases: []}
+    input:
+      asr: "saara owns the doc"
+      formatted: "Saara owns the doc."
+    expect:
+      memory_aware: "Saara owns the doc."
+      intervened: false
+      reason: ambiguous_conflict

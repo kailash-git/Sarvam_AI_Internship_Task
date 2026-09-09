@@ -1,0 +1,39 @@
+{
+  "id": "ambiguous-01",
+  "category": "ambiguous_candidate",
+  "description": "civi matches Kivi and Sivi, thin context -> DEFER",
+  "input": "ask civi",
+  "expected_output": "Ask civi.",
+  "actual_output": "Ask civi.",
+  "expected_action": "DEFER",
+  "actual_action": "DEFER",
+  "reason": "Deferred on 'civi'. It matches 'Kivi' (0.42) and 'Sivi' (0.36); scores are too close to choose.",
+  "scores": {
+    "s_surf": 0.85,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.0,
+    "confidence": 0.841,
+    "combined": 0.42
+  },
+  "asr_text": "ask civi",
+  "formatted_text": "Ask civi.",
+  "memory_aware_text": "Ask civi.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 1.47,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

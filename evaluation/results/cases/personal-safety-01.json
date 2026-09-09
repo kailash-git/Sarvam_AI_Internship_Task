@@ -1,0 +1,39 @@
+{
+  "id": "personal-safety-01",
+  "category": "personal_phonetics",
+  "description": "an active accent profile must NOT override deliberate non-intervention: food context still KEEPs and the Kivi memory is untouched",
+  "input": "the kiwi was ripe and sweet",
+  "expected_output": "The kiwi was ripe and sweet.",
+  "actual_output": "The kiwi was ripe and sweet.",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'kiwi'. 'Kivi' matched but the combined score (0.25) is below the defer threshold (0.32).",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.3,
+    "s_ctx": -0.3,
+    "confidence": 0.923,
+    "combined": 0.254
+  },
+  "asr_text": "the kiwi was ripe and sweet",
+  "formatted_text": "The kiwi was ripe and sweet.",
+  "memory_aware_text": "The kiwi was ripe and sweet.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": true,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.487,
+    "misheard_count": 2,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 13.01,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

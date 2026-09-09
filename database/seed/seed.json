@@ -1,0 +1,117 @@
+{
+  "_comment": "Deterministic seed. Loaded after migrations. Confidence/status are recomputed from evidence on load, not taken from here. `sound_patterns` seeds the user's accent profile the same way the memories seed prior onboarding - it is not required for learning, which starts from empty and is exercised by the evaluation's personal_* cases.",
+  "sound_patterns": [
+    {"position": "medial", "src": "w", "dst": "v", "observations": 3, "origin": "seed",
+     "_note": "This user's ASR writes 'w' for a spoken 'v' inside a word: kiwi<-Kivi, sarwam<-Sarvam."}
+  ],
+  "memories": [
+    {
+      "canonical_form": "Kivi",
+      "entity_type": "product",
+      "source": "seed",
+      "notes": "Voice-first product the user works on at Sarvam. ASR frequently hears 'kiwi'.",
+      "positive_contexts": {
+        "keywords": ["open", "service", "deploy", "app", "build", "backend", "server", "assistant", "voice", "restart", "api", "dashboard"],
+        "domains": ["software"]
+      },
+      "negative_contexts": {
+        "keywords": ["ate", "eat", "eating", "fruit", "juice", "salad", "tree", "grocery", "snack", "peel", "seeds", "tasty"],
+        "domains": ["food"]
+      },
+      "aliases": [
+        {"surface": "Kivi", "origin": "seed"},
+        {"surface": "kiwi", "origin": "asr_observed"},
+        {"surface": "kivy", "origin": "asr_observed"}
+      ],
+      "evidence": [
+        {"kind": "strong_positive", "weight": 1.0, "context_key": null, "obs_type": "manual_teach"},
+        {"kind": "strong_positive", "weight": 1.0, "context_key": "software", "obs_type": "explicit_correction"},
+        {"kind": "strong_positive", "weight": 1.0, "context_key": "software", "obs_type": "explicit_correction"},
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "software", "obs_type": "asr_pair"},
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "software", "obs_type": "asr_pair"}
+      ]
+    },
+    {
+      "canonical_form": "Sarvam",
+      "entity_type": "company",
+      "source": "seed",
+      "notes": "The company. Often misheard as 'sarwam'.",
+      "positive_contexts": {
+        "keywords": ["company", "office", "team", "bangalore", "work", "ai", "startup", "intern", "join"],
+        "domains": []
+      },
+      "negative_contexts": {"keywords": [], "domains": []},
+      "aliases": [
+        {"surface": "Sarvam", "origin": "seed"},
+        {"surface": "sarwam", "origin": "asr_observed"},
+        {"surface": "sarvan", "origin": "asr_observed"}
+      ],
+      "evidence": [
+        {"kind": "strong_positive", "weight": 1.0, "context_key": null, "obs_type": "manual_teach"},
+        {"kind": "strong_positive", "weight": 1.0, "context_key": "general", "obs_type": "explicit_correction"},
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "general", "obs_type": "asr_pair"},
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "general", "obs_type": "asr_pair"}
+      ]
+    },
+    {
+      "canonical_form": "MCP",
+      "entity_type": "acronym",
+      "source": "seed",
+      "notes": "Model Context Protocol. Misheard as 'mcb'. False friend: MVP.",
+      "positive_contexts": {
+        "keywords": ["protocol", "server", "tool", "agent", "context", "model", "connect", "integration", "start"],
+        "domains": ["software"]
+      },
+      "negative_contexts": {"keywords": [], "domains": []},
+      "aliases": [
+        {"surface": "MCP", "origin": "seed"},
+        {"surface": "mcb", "origin": "asr_observed"}
+      ],
+      "evidence": [
+        {"kind": "strong_positive", "weight": 1.0, "context_key": null, "obs_type": "manual_teach"},
+        {"kind": "strong_positive", "weight": 1.0, "context_key": "software", "obs_type": "explicit_correction"},
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "software", "obs_type": "asr_pair"}
+      ]
+    },
+    {
+      "canonical_form": "Sivi",
+      "entity_type": "person",
+      "source": "seed",
+      "notes": "A colleague. Misheard as 'sibi'. Phonetically collides with 'Kivi' for surfaces like 'civi'.",
+      "positive_contexts": {
+        "keywords": ["said", "told", "asked", "meeting", "colleague", "team", "call", "review", "sync", "spoke"],
+        "domains": ["people"]
+      },
+      "negative_contexts": {"keywords": [], "domains": []},
+      "aliases": [
+        {"surface": "Sivi", "origin": "seed"},
+        {"surface": "sibi", "origin": "asr_observed"}
+      ],
+      "evidence": [
+        {"kind": "strong_positive", "weight": 1.0, "context_key": null, "obs_type": "manual_teach"},
+        {"kind": "strong_positive", "weight": 1.0, "context_key": "people", "obs_type": "explicit_correction"},
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "people", "obs_type": "asr_pair"}
+      ]
+    },
+    {
+      "canonical_form": "Devi",
+      "entity_type": "project",
+      "source": "seed",
+      "notes": "Internal project codename. Only weak evidence so far -> stays 'proposed' -> DEFER, never auto-REPLACE.",
+      "positive_contexts": {
+        "keywords": ["project", "codename", "launch", "release", "ship", "milestone", "sprint"],
+        "domains": ["software"]
+      },
+      "negative_contexts": {"keywords": [], "domains": []},
+      "aliases": [
+        {"surface": "Devi", "origin": "seed"},
+        {"surface": "devy", "origin": "asr_observed"}
+      ],
+      "evidence": [
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "software", "obs_type": "asr_pair"},
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "software", "obs_type": "asr_pair"},
+        {"kind": "weak_positive", "weight": 0.15, "context_key": "software", "obs_type": "asr_pair"}
+      ]
+    }
+  ]
+}

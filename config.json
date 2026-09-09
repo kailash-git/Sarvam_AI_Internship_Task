@@ -1,0 +1,40 @@
+{
+  "db_path": "database/kivi.db",
+  "asr_provider": "echo",
+  "formatter_mode": "rules",
+  "thresholds": {
+    "fuzzy_candidate": 0.82,
+    "phonetic_fuzzy_floor": 0.6,
+    "ctx_neg": 0.5,
+    "ctx_pos": 0.35,
+    "ctx_low": -0.5,
+    "active": 0.5,
+    "replace": 0.55,
+    "defer": 0.32,
+    "ambiguity_margin": 0.12
+  },
+  "confidence": {
+    "k": 1.1,
+    "offset": 0.9,
+    "weak_cap": 0.6,
+    "strong_cap": 4.0,
+    "authoritative_floor": 0.7
+  },
+  "personal_phonetics": {
+    "enabled": true,
+    "min_observations": 2,
+    "weight_k": 2.5,
+    "weight_cap": 1.0,
+    "max_chunk_len": 3,
+    "match_floor": 0.85,
+    "match_score_cap": 0.88,
+    "combined_boost": 0.35,
+    "prior_k": 3.0,
+    "tiebreak_min_count": 3
+  },
+  "context_list_max": 12,
+  "audio": {
+    "max_seconds": 60,
+    "max_mb": 5
+  }
+}

@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kivi &mdash; phonetic memory</title>
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <h1 class="sidebar-logo">Kivi</h1>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button type="button" class="nav-item active" data-view="chat">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3ZM19 10v1a7 7 0 0 1-14 0v-1M12 18v4"></path></svg>
+        <span>Transcribe</span>
+      </button>
+      <button type="button" class="nav-item" data-view="memory">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 5c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3ZM4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"></path></svg>
+        <span>Memory</span>
+      </button>
+      <button type="button" class="nav-item" data-view="eval">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 3v18h18M7 15v-4M12 17V7M17 15v-7"></path></svg>
+        <span>Evaluation</span>
+      </button>
+    </nav>
+
+    <hr class="sidebar-divider" />
+
+    <div class="session-block">
+      <p class="section-label">This session</p>
+      <div class="session-stats" id="sessionStats">
+        <div class="stat-line"><span class="stat-label">Terms</span><span class="stat-value" data-k="memory">&ndash;</span></div>
+        <div class="stat-line"><span class="stat-label">Aliases</span><span class="stat-value" data-k="alias">&ndash;</span></div>
+        <div class="stat-line"><span class="stat-label">Observations</span><span class="stat-value" data-k="observation">&ndash;</span></div>
+        <div class="stat-line"><span class="stat-label">Evidence</span><span class="stat-value" data-k="evidence">&ndash;</span></div>
+        <div class="stat-line"><span class="stat-label">Accent rules</span><span class="stat-value" data-k="sound_pattern">&ndash;</span></div>
+      </div>
+      <button type="button" class="btn btn-outline" id="resetBtn" style="width:100%;margin-top:var(--space-6)">Reset memory</button>
+    </div>
+  </aside>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="greeting">
+        <h2 class="greeting-name">K A Thirukailash</h2>
+        <p class="greeting-msg">Welcome back</p>
+      </div>
+    </div>
+    <button type="button" class="fs-btn" id="fsBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button>
+  </header>
+
+  <main class="main">
+
+    <!-- ================= TRANSCRIBE ================= -->
+    <section class="view on" id="view-chat">
+      <h1 class="page-title" style="font-family:'Trebuchet MS',Verdana,sans-serif">Just Speak. Kivi Listens.</h1>
+
+      <div class="grid-cols-2">
+        <div>
+          <div class="card">
+            <h3 class="card-title">Transcript</h3>
+
+            <div class="transcript-view" id="stream">
+              <div class="transcript-empty" id="emptyState">
+                <p>Nothing yet. Try one &mdash; then click a highlighted word to inspect the decision.</p>
+                <div class="starters">
+                  <button class="starter" data-s="open the kiwi service">open the kiwi service</button>
+                  <button class="starter" data-s="I ate a kiwi today">I ate a kiwi today</button>
+                  <button class="starter" data-s="ask civi to restart the service">ask civi to restart the service</button>
+                  <button class="starter" data-s="we should ship devy this sprint">we should ship devy this sprint</button>
+                  <button class="starter" data-s="I told sibi about the meeting">I told sibi about the meeting</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="composer">
+              <button type="button" class="composer-mic" id="micBtn" title="Record" aria-label="Record">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3ZM19 10v1a7 7 0 0 1-14 0v-1M12 18v4"></path></svg>
+              </button>
+              <textarea class="composer-input" id="input" rows="1" placeholder="Speak or paste what you heard&hellip;"></textarea>
+              <button type="button" class="btn btn-primary send-btn" id="sendBtn" aria-label="Send">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+              </button>
+            </div>
+            <div class="composer-toast" id="toast"></div>
+            <audio id="playback" controls hidden></audio>
+          </div>
+
+          <div class="card" style="margin-top:var(--space-8)">
+            <h3 class="card-title">How to read it</h3>
+            <p class="card-intro">Every highlighted word is a decision you can inspect and overrule.</p>
+            <div>
+              <div class="legend-row"><button type="button" disabled class="word-btn word-rep sample">Kivi</button><span class="desc"><b>REPLACE</b> &mdash; memory is confident and restores your word.</span></div>
+              <div class="legend-row"><button type="button" disabled class="word-btn word-def sample">thunder</button><span class="desc"><b>DEFER</b> &mdash; a candidate exists but scores below threshold, so it is flagged for you.</span></div>
+              <div class="legend-row"><button type="button" disabled class="word-btn word-kc sample">echo</button><span class="desc"><b>KEEP</b> &mdash; considered against memory, then left exactly as written.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= MEMORY ================= -->
+    <section class="view" id="view-memory">
+      <h1 class="page-title" style="font-family:Montserrat">Memory</h1>
+
+      <div class="grid-cols-2">
+        <div class="card">
+          <h3 class="card-title">Overview</h3>
+          <div class="stat-trio" id="ovTrio"></div>
+          <p class="section-label">Confidence by term</p>
+          <div class="bar-list" id="confBars"></div>
+        </div>
+        <div class="card" id="accentBox"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:var(--space-8)">
+        <h3 class="card-title">What Kivi knows</h3>
+        <div class="memory-table" id="memTable"></div>
+      </div>
+    </section>
+
+    <!-- ================= EVALUATION ================= -->
+    <section class="view" id="view-eval">
+      <h1 class="page-title" style="font-family:Montserrat">Evaluation</h1>
+
+      <div class="grid-cols-2">
+        <div class="card">
+          <h3 class="card-title">Committed run</h3>
+          <div class="eval-2" id="evalStats">
+            <div class="eval-stat"><p class="eval-stat-num">&mdash;</p><p class="eval-stat-label">Pass rate</p></div>
+            <div class="eval-stat"><p class="eval-stat-num">&mdash;</p><p class="eval-stat-label">Cases</p></div>
+            <div class="eval-stat"><p class="eval-stat-num">&mdash;</p><p class="eval-stat-label">Non-int</p></div>
+            <div class="eval-stat"><p class="eval-stat-num">&mdash;</p><p class="eval-stat-label">Over-int</p></div>
+          </div>
+          <p class="section-label">Pipeline readout</p>
+          <div id="pipeBars">
+            <div class="pipeline-item"><span class="bar-label">1 &middot; ASR</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">100%</span></div>
+            <div class="pipeline-item"><span class="bar-label">2 &middot; Formatter</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">100%</span></div>
+            <div class="pipeline-item"><span class="bar-label">3 &middot; Memory-aware</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="bar-val">&mdash;</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Cost</h3>
+          <p class="section-label">This run</p>
+          <p class="big-num">$0.00 <span>by design</span></p>
+          <p class="big-note"><b>0</b> model calls &middot; <span id="evalCases">&mdash;</span> cases</p>
+          <div style="padding:var(--space-6) 0 0;margin-top:var(--space-6);border-top:var(--border-width) solid var(--border-hairline)">
+            <div class="cost-note"><span class="cost-dot">&middot;</span><span>No LLM in the core path &mdash; REPLACE / KEEP / DEFER over a phonetic index.</span></div>
+            <div class="cost-note"><span class="cost-dot">&middot;</span><span>Every decision carries a reason code, score and evidence.</span></div>
+            <div class="cost-note"><span class="cost-dot">&middot;</span><span>The same input always produces the same transcript.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:var(--space-8)">
+        <h3 class="card-title">Report</h3>
+        <pre class="report-box" id="evalReport">Switch to this tab to load evaluation/results/report.md</pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => (s || '').toLowerCase().replace(/[^a-z0-9']/g, '');
+const _n2 = v => Number(v || 0).toFixed(2);
+const _n3 = v => (v == null || v === '' ? '—' : Number(v).toFixed(3));
+const _clamp = v => Math.max(0, Math.min(1, Number(v) || 0));
+const _ts = s => { if (!s) return '—'; const d = new Date(s); return isNaN(d) ? String(s) : d.toISOString().slice(5, 16).replace('T', ' '); };
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, opts);
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail || body.message || (r.status + ' ' + r.statusText));
+  return body;
+}
+
+/* ---------------- views ---------------- */
+document.querySelectorAll('.nav-item').forEach(b => b.onclick = () => setView(b.dataset.view));
+function setView(v) {
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.toggle('active', x.dataset.view === v));
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'view-' + v));
+  if (v === 'memory') loadMemory();
+  if (v === 'eval') loadEval();
+}
+
+$('#fsBtn').onclick = () => $('#app').classList.toggle('fullscreen');
+
+/* ---------------- transcribe ---------------- */
+const stream = $('#stream');
+const turns = [];
+const toast = m => { $('#toast').textContent = m || ''; };
+
+$('#sendBtn').onclick = () => submit($('#input').value);
+$('#input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit($('#input').value); }
+});
+$('#input').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; });
+document.querySelectorAll('.starter').forEach(c => c.onclick = () => submit(c.dataset.s));
+
+async function submit(text) {
+  text = (text || '').trim();
+  if (!text) return;
+  $('#input').value = ''; $('#input').style.height = 'auto';
+  const es = $('#emptyState'); if (es) es.remove();
+  $('#sendBtn').disabled = true;
+
+  const turn = { utterance: text, result: null, el: document.createElement('div') };
+  turn.el.className = 'turn';
+  turn.el.innerHTML = '<div class="turn-line" style="color:var(--text-muted)">listening…</div>';
+  stream.append(turn.el);
+  turns.push(turn);
+  stream.scrollTop = stream.scrollHeight;
+
+  try {
+    const r = await api('/api/process', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+    turn.result = r;
+    renderTurn(turn);
+  } catch (e) {
+    turn.el.innerHTML = '<div class="turn-line" style="color:var(--status-danger)">' + esc(e.message) + '</div>';
+  } finally {
+    $('#sendBtn').disabled = false;
+    stream.scrollTop = stream.scrollHeight;
+    syncSession();
+  }
+}
+
+function renderTurn(turn) {
+  const r = turn.result;
+  turn.el.innerHTML =
+    '<div class="turn-line">' + wordify(r) + '</div>' +
+    '<div class="wd-holder"></div>';
+  bindWords(turn);
+}
+
+function wordify(r) {
+  const bySurface = new Map();
+  (r.decisions || []).forEach(d => {
+    const key = norm(d.replacement || d.span);
+    if (!bySurface.has(key)) bySurface.set(key, []);
+    bySurface.get(key).push(d);
+  });
+  const used = new Set();
+  let out = '';
+  const parts = (r.memory_aware_text || '').split(/([A-Za-z][A-Za-z'’-]*)/);
+  parts.forEach((chunk, i) => {
+    if (i % 2 === 0) { out += esc(chunk); return; }
+    const key = norm(chunk);
+    const d = (bySurface.get(key) || []).find(x => !used.has(x));
+    let kind = '';
+    if (d) {
+      used.add(d);
+      if (d.action === 'REPLACE') kind = 'rep';
+      else if (d.action === 'DEFER') kind = 'def';
+      else if (d.matched_memory) kind = 'kc';
+    }
+    out += '<button type="button" class="word-btn word-' + (kind || 'plain') + '" data-i="' + i + '" data-w="' + esc(chunk) + '"' +
+           (d && d.decision_id != null ? ' data-did="' + d.decision_id + '"' : '') + '>' + esc(chunk) + '</button>';
+  });
+  return out;
+}
+
+function decisionFor(r, el) {
+  const did = el.dataset.did, w = norm(el.dataset.w);
+  return (r.decisions || []).find(d =>
+    (did && String(d.decision_id) === did) || norm(d.replacement || d.span) === w) || null;
+}
+
+function bindWords(turn) {
+  turn.el.querySelectorAll('.turn-line .word-btn').forEach(btn => {
+    btn.onclick = () => openWord(turn, btn);
+  });
+}
+
+function openWord(turn, btn) {
+  const holder = turn.el.querySelector('.wd-holder');
+  const tag = btn.dataset.w + '#' + btn.dataset.i;
+  const clear = () => { holder.innerHTML = ''; holder.dataset.for = ''; turn.el.querySelectorAll('.word-btn.sel').forEach(x => x.classList.remove('sel')); };
+  if (holder.dataset.for === tag) { clear(); return; }
+  turn.el.querySelectorAll('.word-btn.sel').forEach(x => x.classList.remove('sel'));
+  btn.classList.add('sel');
+  holder.dataset.for = tag;
+
+  const d = decisionFor(turn.result, btn);
+  const word = btn.dataset.w;
+  const heard = d ? (d.asr_original || d.span) : word;
+  const action = d ? d.action : null;
+  const reason = d && d.reason ? d.reason : '';
+  const sm = reason.match(/combined\s+([0-9.]+)/i);
+  const score = sm ? Number(sm[1]).toFixed(2)
+    : ([d && d.combined_score, d && d.score].find(v => typeof v === 'number' && !isNaN(v)) != null
+        ? Number([d.combined_score, d.score].find(v => typeof v === 'number' && !isNaN(v))).toFixed(2) : null);
+  const tagCls = action === 'REPLACE' ? 'status-active' : action === 'DEFER' ? 'status-proposed' : 'status-inactive';
+
+  holder.innerHTML =
+    '<div class="wd-panel">' +
+      '<div class="wd-head">' +
+        '<span class="wd-word">' + esc(word) + '</span>' +
+        (action
+          ? '<span class="status-tag ' + tagCls + '">' + action + (score ? ' &middot; ' + score : '') + '</span>'
+          : '<span class="wd-meta">kept as written</span>') +
+      '</div>' +
+      (reason ? '<p class="wd-reason">' + esc(reason) + '</p>' : '') +
+      '<div class="wd-edit">' +
+        '<input class="wd-input" value="' + esc(word) + '" aria-label="Correct this word" />' +
+        '<button type="button" class="btn btn-primary" data-a="save">Save fix</button>' +
+        (d ? '<button type="button" class="btn btn-outline" data-a="keep">Keep &ldquo;' + esc(heard) + '&rdquo;</button>' : '') +
+      '</div>' +
+    '</div>';
+
+  const inp = holder.querySelector('.wd-input');
+  inp.focus(); inp.select();
+  const save = () => {
+    const v = inp.value.trim();
+    if (v && norm(v) !== norm(word)) correctWord(turn, d, word, v);
+  };
+  inp.onkeydown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { e.preventDefault(); clear(); }
+  };
+  holder.querySelector('[data-a="save"]').onclick = save;
+  const kb = holder.querySelector('[data-a="keep"]');
+  if (kb) kb.onclick = () => keepHeard(turn, d, d.matched_memory || d.replacement || d.span, heard);
+}
+
+async function keepHeard(turn, d, canonical, heard) {
+  const body = { type: 'rejection', rejected_form: canonical, chosen_form: heard,
+    formatted_text: turn.result.formatted_text, raw_asr_text: turn.result.asr_text };
+  if (d && d.decision_id != null) body.decision_id = d.decision_id;
+  await observeAndReprocess(turn, body, heard);
+}
+async function correctWord(turn, d, wrongWord, rightWord) {
+  const r = turn.result;
+  const revert = d && d.action === 'REPLACE' && norm(rightWord) === norm(d.asr_original || d.span);
+  const body = revert
+    ? { type: 'rejection', rejected_form: d.matched_memory || d.replacement, chosen_form: rightWord }
+    : { type: 'explicit_correction', chosen_form: rightWord, rejected_form: wrongWord };
+  body.formatted_text = r.formatted_text;
+  body.raw_asr_text = r.asr_text;
+  if (d && d.decision_id != null) body.decision_id = d.decision_id;
+  await observeAndReprocess(turn, body, rightWord);
+}
+
+async function observeAndReprocess(turn, body, highlight) {
+  toast('');
+  try {
+    await api('/api/observe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  } catch (e) { toast('could not record: ' + e.message); return; }
+  try {
+    const r = await api('/api/process', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: turn.utterance }) });
+    turn.result = r;
+    renderTurn(turn);
+    flashWord(turn.el, highlight);
+  } catch (e) { toast('re-process failed: ' + e.message); }
+  syncSession();
+  if ($('#view-memory').classList.contains('on')) loadMemory();
+}
+
+function flashWord(el, word) {
+  const w = norm(word);
+  el.querySelectorAll('.turn-line .word-btn').forEach(s => {
+    if (norm(s.dataset.w) === w) { s.classList.add('word-flash'); setTimeout(() => s.classList.remove('word-flash'), 1300); }
+  });
+}
+
+/* ---------------- recording ---------------- */
+let rec, chunks = [];
+$('#micBtn').onclick = async () => {
+  if (rec && rec.state === 'recording') { rec.stop(); return; }
+  try {
+    const ms = await navigator.mediaDevices.getUserMedia({ audio: true });
+    rec = new MediaRecorder(ms); chunks = [];
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = async () => {
+      ms.getTracks().forEach(t => t.stop());
+      $('#micBtn').classList.remove('rec');
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      $('#playback').src = URL.createObjectURL(blob); $('#playback').hidden = false;
+      const fd = new FormData(); fd.append('audio', blob, 'rec.webm');
+      toast('transcribing…');
+      try {
+        const r = await api('/api/process-audio', { method: 'POST', body: fd });
+        toast('');
+        const es = $('#emptyState'); if (es) es.remove();
+        const turn = { utterance: r.asr_text, result: r, el: document.createElement('div') };
+        turn.el.className = 'turn';
+        stream.append(turn.el); turns.push(turn); renderTurn(turn);
+        stream.scrollTop = stream.scrollHeight; syncSession();
+      } catch (e) {
+        toast(/real ASR|409/.test(e.message)
+          ? 'Voice needs a Whisper provider (RUN.md §8). Type instead — echo ASR handles typed text.'
+          : e.message);
+      }
+    };
+    rec.start();
+    $('#micBtn').classList.add('rec');
+    setTimeout(() => { if (rec && rec.state === 'recording') rec.stop(); }, 60000);
+  } catch (e) { toast('mic unavailable — type instead'); }
+};
+
+/* ---------------- memory ---------------- */
+async function loadMemory() {
+  let counts = {};
+  try { counts = (await api('/api/health')).counts || {}; } catch (e) {}
+
+  const r = await api('/api/memory');
+  const items = r.items || [];
+  const full = await Promise.all(items.map(it => api('/api/memory/' + it.id).catch(() => null)));
+
+  renderOverview(counts, items);
+  renderAccent();
+  renderTable(items, full);
+}
+
+function renderOverview(c, items) {
+  const cell = (v, l) => '<div class="stat-cell"><p class="stat-num">' + v + '</p><p class="stat-label">' + l + '</p></div>';
+  $('#ovTrio').innerHTML =
+    cell(items.length, 'Terms in memory') +
+    cell(c.decision ?? 0, 'Decisions logged') +
+    cell(c.alias ?? 0, 'Aliases tracked');
+
+  const bars = items.slice().sort((a, b) => (b.confidence || 0) - (a.confidence || 0)).slice(0, 6).map(m =>
+    '<div class="bar-item">' +
+      '<span class="bar-label">' + esc(m.canonical_form) + '</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + Math.round(_clamp(m.confidence) * 100) + '%"></div></div>' +
+      '<span class="bar-val">' + _n2(m.confidence) + '</span>' +
+    '</div>').join('');
+  $('#confBars').innerHTML = bars || '<p class="empty-note">Nothing remembered yet.</p>';
+}
+
+async function renderAccent() {
+  let p;
+  try { p = await api('/api/phonetic-profile'); } catch (e) { p = { rules: [] }; }
+  const rules = p.rules || [];
+  const box = $('#accentBox');
+  if (!rules.length) {
+    box.innerHTML = '<h3 class="card-title">Accent profile</h3>' +
+      '<p class="empty-note">No rules yet. Correct a mishearing on Transcribe and Kivi keeps the difference here.</p>';
+    return;
+  }
+  const top = rules[0], rest = rules.slice(1);
+  const w = _clamp(top.weight);
+  const waves = Array.from({ length: 44 }, (_, i) =>
+    '<div class="wave-bar" style="height:' + Math.round(6 + Math.abs(Math.sin(i * 0.72)) * w * 40 + 6) + 'px"></div>').join('');
+
+  box.innerHTML =
+    '<h3 class="card-title">Accent profile</h3>' +
+    '<p class="section-label" style="margin-top:0">Strongest rule</p>' +
+    '<div class="accent-lead">' +
+      '<p class="accent-rule">' + esc(top.src || '∅') + ' → ' + esc(top.dst || '∅') + ' <span>' + _n2(top.weight) + '</span></p>' +
+      '<p class="accent-sub">learned from <b>' + (top.observations ?? 0) + '</b> corrections</p>' +
+    '</div>' +
+    '<div class="rule-box">' +
+      '<p class="rule-box-h">' + (top.active ? 'Rule is active' : 'Below threshold') + '</p>' +
+      '<p class="rule-box-s">firing on ' + (p.active_count ?? 0) + ' of ' + (p.count ?? rules.length) + ' rules</p>' +
+      '<div class="wave-bars">' + waves + '</div>' +
+    '</div>' +
+    (rest.length
+      ? '<p class="section-label">Secondary rules</p><div class="bar-list">' + rest.map(x =>
+          '<div class="bar-item">' +
+            '<span class="bar-label">' + esc(x.src || '∅') + ' → ' + esc(x.dst || '∅') + '</span>' +
+            '<div class="bar-track"><div class="bar-fill" style="width:' + Math.round(_clamp(x.weight) * 100) + '%"></div></div>' +
+            '<span class="bar-val">' + _n2(x.weight) + '</span>' +
+          '</div>').join('') + '</div>'
+      : '');
+}
+
+const CHEV = '<svg class="chev-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>';
+
+function renderTable(items, full) {
+  const t = $('#memTable');
+  t.innerHTML =
+    '<div class="table-header"><span>Term</span><span>Heard as</span><span>Confidence</span><span>Status</span><span></span></div>';
+
+  items.forEach((m, i) => {
+    const d = full[i];
+    const als = (m.aliases || []).map(a => (typeof a === 'string' ? a : (a && a.surface_form) || '')).filter(Boolean);
+    const chips = als.slice(0, 2).map(a => '<span class="alias-chip">' + esc(a) + '</span>').join('') +
+                  (als.length > 2 ? '<span class="alias-chip">+' + (als.length - 2) + '</span>' : '');
+    const pct = Math.round(_clamp(m.confidence) * 100);
+
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'table-row';
+    row.setAttribute('aria-expanded', 'false');
+    row.innerHTML =
+      '<div><p class="cell-name">' + esc(m.canonical_form) + '</p><p class="cell-type">' + esc(m.entity_type) + '</p></div>' +
+      '<div class="col-aliases alias-wrap">' + chips + '</div>' +
+      '<div class="col-conf conf-bar"><div class="conf-track"><div class="conf-fill" style="width:' + pct + '%"></div></div><span class="conf-val">' + _n2(m.confidence) + '</span></div>' +
+      '<span class="col-status"><span class="status-tag status-' + esc(m.status) + '">' + esc(m.status) + '</span></span>' +
+      CHEV;
+
+    const panel = document.createElement('div');
+    panel.hidden = true;
+
+    row.onclick = () => {
+      const open = panel.hidden;
+      panel.hidden = !open;
+      row.setAttribute('aria-expanded', String(open));
+      row.querySelector('.chev-ico').style.transform = open ? 'rotate(90deg)' : 'rotate(0deg)';
+      if (open && !panel.dataset.filled) {
+        renderDetail(panel, m, d);
+        panel.dataset.filled = '1';
+      }
+    };
+    t.append(row, panel);
+  });
+}
+
+function renderDetail(panel, m, d) {
+  const als = d ? (d.aliases || []) : [];
+  const key = (als[0] && als[0].phonetic_key) || (m.phonetic_key) || '—';
+  const note = m.notes || (m.entity_type + '. ' + als.length + ' known mishearing' + (als.length === 1 ? '' : 's') + '.');
+  const ev = als.length
+    ? als.map(a => '<p class="evidence-line">&ldquo;' + esc(a.surface_form) + '&rdquo;: <b>' + (a.observation_count ?? 0) + '</b></p>').join('')
+    : (d && d.evidence && d.evidence.length
+        ? d.evidence.map(e => '<p class="evidence-line">' + esc(String(e.kind).replace(/_/g, ' ')) + ': <b>' + (e.weight >= 0 ? '+' : '') + e.weight + '</b></p>').join('')
+        : '<p class="empty-note">No evidence yet.</p>');
+
+  panel.className = 'detail-panel';
+  panel.innerHTML =
+    '<div class="detail-block"><h4 class="detail-tag">Term</h4><p class="detail-val">' + esc(m.canonical_form) + '</p><p class="detail-note">' + esc(note) + '</p></div>' +
+    '<div class="detail-block"><h4 class="detail-tag">Phonetic key</h4><code class="code-inline">' + esc(key) + '</code></div>' +
+    '<div class="detail-block"><h4 class="detail-tag">Evidence</h4>' + ev + '</div>' +
+    '<div class="detail-actions">' +
+      '<button type="button" class="btn btn-primary" data-a="promote">Promote</button>' +
+      '<button type="button" class="btn btn-outline" data-a="retire">Retire</button>' +
+    '</div>';
+
+  panel.querySelector('[data-a="promote"]').onclick = async ev2 => {
+    ev2.stopPropagation();
+    const b = ev2.target; b.disabled = true; b.textContent = 'Promoting…';
+    try {
+      await api('/api/observe', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'confirmation', chosen_form: m.canonical_form }) });
+      await loadMemory();
+    } catch (e) { b.disabled = false; b.textContent = e.message; }
+  };
+  const retire = panel.querySelector('[data-a="retire"]');
+  retire.onclick = async ev2 => {
+    ev2.stopPropagation();
+    if (retire.dataset.armed !== '1') { retire.dataset.armed = '1'; retire.textContent = 'Confirm retire'; return; }
+    retire.disabled = true; retire.textContent = 'Retiring…';
+    try { await api('/api/memory/' + m.id, { method: 'DELETE' }); await loadMemory(); }
+    catch (e) { retire.disabled = false; retire.textContent = e.message; }
+  };
+}
+
+/* ---------------- evaluation ---------------- */
+let evalLoaded = false;
+async function loadEval() {
+  if (evalLoaded) return;
+  try {
+    const r = await api('/api/evaluation/results');
+    const h = r.summary.headline;
+    const pct = v => Math.round((Number(v) || 0) * 100) + '%';
+    $('#evalStats').innerHTML = [
+      [pct(h.pass_rate), 'Pass rate'],
+      [(h.passed ?? '—') + ' / ' + (h.cases ?? '—'), 'Cases'],
+      [pct(h.non_intervention_accuracy), 'Non-int'],
+      [String(h.over_intervention_count ?? '—'), 'Over-int'],
+    ].map(([v, l]) => '<div class="eval-stat"><p class="eval-stat-num">' + v + '</p><p class="eval-stat-label">' + l + '</p></div>').join('');
+    $('#pipeBars').innerHTML =
+      '<div class="pipeline-item"><span class="bar-label">1 &middot; ASR</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">100%</span></div>' +
+      '<div class="pipeline-item"><span class="bar-label">2 &middot; Formatter</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">100%</span></div>' +
+      '<div class="pipeline-item"><span class="bar-label">3 &middot; Memory-aware</span><div class="bar-track"><div class="bar-fill" style="width:' + pct(h.pass_rate) + '"></div></div><span class="bar-val">' + pct(h.pass_rate) + '</span></div>';
+    $('#evalCases').textContent = h.cases ?? '—';
+    $('#evalReport').textContent = r.report_md || '(no report on disk)';
+    evalLoaded = true;
+  } catch (e) {
+    $('#evalReport').textContent = e.message + '\n\nRun:  python manage.py eval';
+  }
+}
+
+/* ---------------- reset ---------------- */
+$('#resetBtn').onclick = async () => {
+  await api('/api/admin/reset', { method: 'POST' });
+  turns.length = 0;
+  stream.innerHTML = '<div class="transcript-empty"><p>Reset to seed. Start again below.</p></div>';
+  toast(''); evalLoaded = false; syncSession();
+  if ($('#view-memory').classList.contains('on')) loadMemory();
+};
+
+/* ---------------- session counters ---------------- */
+async function syncSession() {
+  try {
+    const c = (await api('/api/health')).counts || {};
+    document.querySelectorAll('#sessionStats [data-k]').forEach(el => {
+      const v = c[el.dataset.k];
+      el.textContent = (v == null) ? '–' : v;
+    });
+  } catch (e) {}
+}
+syncSession();
+</script>
+</body>
+</html>

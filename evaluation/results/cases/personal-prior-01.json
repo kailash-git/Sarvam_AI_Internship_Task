@@ -1,0 +1,39 @@
+{
+  "id": "personal-prior-01",
+  "category": "personal_phonetics",
+  "description": "disambiguation prior: 3 prior Sivi mishearings lift a borderline match over the line. Same input as multi-01, which DEFERs with no history.",
+  "input": "open kiwi and tell sibi",
+  "expected_output": "Open Kivi and tell Sivi.",
+  "actual_output": "Open Kivi and tell Sivi.",
+  "expected_action": "REPLACE",
+  "actual_action": "REPLACE",
+  "reason": "Replaced 'sibi' with 'Sivi': exact match (surface 1.00) to an active memory (confidence 0.91); context score +0.00. Combined 1.00. Applied on the first recall: you have corrected this exact mishearing before, so the surrounding context was not required. Your ASR has mis-spelled 'Sivi' 3x before, so its score was lifted x1.22.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.0,
+    "confidence": 0.91,
+    "combined": 1.0
+  },
+  "asr_text": "open kiwi and tell sibi",
+  "formatted_text": "Open kiwi and tell sibi.",
+  "memory_aware_text": "Open Kivi and tell Sivi.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": true,
+  "expect_reason_contains": "mis-spelled 'Sivi'",
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.632,
+    "misheard_count": 3,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 2.81,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

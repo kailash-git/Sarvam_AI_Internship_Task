@@ -1,0 +1,15 @@
+services:
+  kivi:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      KIVI_LLM_MODE: "${KIVI_LLM_MODE:-mock}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      KIVI_LLM_MODEL: "${KIVI_LLM_MODEL:-claude-sonnet-5}"
+      KIVI_DB_PATH: "/data/kivi.db"
+    volumes:
+      - kivi_data:/data
+
+volumes:
+  kivi_data:

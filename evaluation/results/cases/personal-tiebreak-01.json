@@ -1,0 +1,39 @@
+{
+  "id": "personal-tiebreak-01",
+  "category": "personal_phonetics",
+  "description": "correction history breaks a genuine ambiguity. Same input as ambiguous-01 ('ask civi' -> DEFER); here Kivi has been misheard 4x and Sivi 0x, so Kivi is chosen.",
+  "input": "ask civi",
+  "expected_output": "Ask Kivi.",
+  "actual_output": "Ask Kivi.",
+  "expected_action": "REPLACE",
+  "actual_action": "REPLACE",
+  "reason": "Replaced 'civi' with 'Kivi': phonetic match (surface 0.85) to an active memory (confidence 0.95); context score +0.00. Combined 0.60. Your ASR has mis-spelled 'Kivi' 4x before, so its score was lifted x1.26. Your correction history separated a near-tie: 'Kivi' has been misheard 4x vs 0x for 'Sivi'.",
+  "scores": {
+    "s_surf": 0.85,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.0,
+    "confidence": 0.952,
+    "combined": 0.598
+  },
+  "asr_text": "ask civi",
+  "formatted_text": "Ask civi.",
+  "memory_aware_text": "Ask Kivi.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": true,
+  "expect_reason_contains": "correction history",
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.736,
+    "misheard_count": 4,
+    "rules": [],
+    "note": "Your correction history separated a near-tie: 'Kivi' has been misheard 4x vs 0x for 'Sivi'."
+  },
+  "passed": true,
+  "latency_ms": 4.18,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

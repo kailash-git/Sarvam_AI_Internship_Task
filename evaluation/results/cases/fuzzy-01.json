@@ -1,0 +1,39 @@
+{
+  "id": "fuzzy-01",
+  "category": "fuzzy_match",
+  "description": "near-miss spelling, strong context",
+  "input": "open the kivee dashboard",
+  "expected_output": "Open the Kivi dashboard.",
+  "actual_output": "Open the Kivi dashboard.",
+  "expected_action": "REPLACE",
+  "actual_action": "REPLACE",
+  "reason": "Replaced 'kivee' with 'Kivi': phonetic match (surface 0.85) to an active memory (confidence 0.84); context score +1.00. Combined 0.71.",
+  "scores": {
+    "s_surf": 0.85,
+    "s_ctx_pos": 1.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 1.0,
+    "confidence": 0.841,
+    "combined": 0.714
+  },
+  "asr_text": "open the kivee dashboard",
+  "formatted_text": "Open the kivee dashboard.",
+  "memory_aware_text": "Open the Kivi dashboard.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 3.13,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

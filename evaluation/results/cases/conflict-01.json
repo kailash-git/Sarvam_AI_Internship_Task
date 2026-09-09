@@ -1,0 +1,39 @@
+{
+  "id": "conflict-01",
+  "category": "conflicting_memories",
+  "description": "two memories claim the same alias -> DEFER",
+  "input": "call kaya please",
+  "expected_output": "Call kaya please.",
+  "actual_output": "Call kaya please.",
+  "expected_action": "DEFER",
+  "actual_action": "DEFER",
+  "reason": "Deferred on 'kaya'. It matches 'Kayo' (0.77) and 'Kaira' (0.77); scores are too close to choose.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.65,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.65,
+    "confidence": 0.7,
+    "combined": 0.769
+  },
+  "asr_text": "call kaya please",
+  "formatted_text": "Call kaya please.",
+  "memory_aware_text": "Call kaya please.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.283,
+    "misheard_count": 1,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 14.52,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

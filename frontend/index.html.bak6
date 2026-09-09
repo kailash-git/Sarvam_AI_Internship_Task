@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kivi Workspace &middot; Personal Phonetic Memory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"></div>
+
+<div class="window">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 10v4M7.5 6v12M12 3v18M16.5 7.5v9M21 10v4"/></svg></span>
+      <span class="brand-name">Kivi Workspace</span>
+    </div>
+
+    <nav class="nav">
+      <button class="navlink active" data-view="chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5Z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg><span>Transcribe</span></button>
+      <button class="navlink" data-view="memory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="m3 12 9 4.5L21 12"/><path d="m3 16.5 9 4.5 9-4.5"/></svg><span>Memory</span></button>
+      <button class="navlink" data-view="eval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16.5A1.5 1.5 0 0 0 4.5 21H21"/><path d="m7 15 3.5-4 3 3L18 8"/></svg><span>Evaluation</span></button>
+    </nav>
+
+    <div class="nav-label">Session state</div>
+    <div class="side-stats" id="sideStats">
+      <div class="s hot"><span class="dot"></span>Memories<b data-k="memory">&ndash;</b></div>
+      <div class="s"><span class="dot"></span>Aliases<b data-k="alias">&ndash;</b></div>
+      <div class="s"><span class="dot"></span>Observations<b data-k="observation">&ndash;</b></div>
+      <div class="s"><span class="dot"></span>Evidence<b data-k="evidence">&ndash;</b></div>
+      <div class="s"><span class="dot"></span>Accent rules<b data-k="sound_pattern">&ndash;</b></div>
+    </div>
+
+    <div class="side-foot">
+      <button class="nav-reset" id="resetBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg><span>Reset memory</span></button>
+      <div class="side-meta">local &middot; no model calls &middot; $0.00</div>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <!-- ================= TRANSCRIBE ================= -->
+    <section class="view on" id="view-chat">
+      <header class="page-head">
+        <span class="page-icon i-chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5Z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span>
+        <h1>The words Kivi keeps</h1>
+      </header>
+      <p class="page-sub">Speak or type. Kivi transcribes, formats, then rewrites the words that belong to you &mdash; names, products, the terms your recogniser keeps getting wrong. Click any highlighted word and type the fix; it remembers.</p>
+
+      <div class="stream" id="stream">
+        <div class="empty" id="empty">
+          Nothing yet. Try one of these &mdash; then click a highlighted word to correct it.
+          <div class="chips" id="starters">
+            <button class="chip" data-s="open the kiwi service">open the kiwi service</button>
+            <button class="chip" data-s="I ate a kiwi today">I ate a kiwi today</button>
+            <button class="chip" data-s="ask civi to restart the service">ask civi to restart the service</button>
+            <button class="chip" data-s="we should ship devy this sprint">we should ship devy this sprint</button>
+            <button class="chip" data-s="I told sibi about the meeting">I told sibi about the meeting</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dock">
+        <div class="toast" id="toast"></div>
+        <div class="composer">
+          <textarea id="input" rows="1" placeholder="Say something to Kivi&hellip;"></textarea>
+          <button class="mic" id="micBtn" title="Record" aria-label="Record"><span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
+          <button class="send" id="sendBtn" title="Send" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+        </div>
+        <audio id="playback" controls hidden></audio>
+      </div>
+    </section>
+
+    <!-- ================= MEMORY ================= -->
+    <section class="view" id="view-memory">
+      <header class="page-head">
+        <span class="page-icon i-mem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="m3 12 9 4.5L21 12"/><path d="m3 16.5 9 4.5 9-4.5"/></svg></span>
+        <h1>Memory</h1>
+      </header>
+      <p class="page-sub">Every term Kivi has learned, the evidence that earned it, and the sound substitutions your recogniser keeps making. Nothing here is guessed at read time &mdash; it is the live state, and you can change it.</p>
+
+      <div class="vitals" id="vitals"></div>
+
+      <h2 class="sec">How your voice is heard <span class="count" id="accentCount"></span></h2>
+      <p class="sec-sub">substitutions learned from your own corrections, not from a generic pronunciation table</p>
+      <div class="accent-grid" id="accentGrid"></div>
+      <p class="foot" id="accentNote"></p>
+
+      <h2 class="sec">Remembered terms <span class="count" id="memCount"></span></h2>
+      <p class="sec-sub">open a term to see the evidence behind its confidence and everything that has weighed it</p>
+      <div class="mem-grid" id="memList"></div>
+
+      <h2 class="sec">Teach Kivi something</h2>
+      <p class="sec-sub">the same learning path your inline corrections use</p>
+      <div class="obs-forms">
+        <div class="obs-card">
+          <div class="obs-t">Teach a term</div>
+          <label>Canonical form<input id="tCanon" placeholder="e.g. Kivi" /></label>
+          <label>Entity type<input id="tType" value="term" /></label>
+          <label>Positive context keywords<input id="tKw" placeholder="comma-separated (optional)" /></label>
+          <button id="teachBtn">Teach</button>
+        </div>
+        <div class="obs-card">
+          <div class="obs-t">Record a correction</div>
+          <label>What Kivi should produce<input id="cChosen" placeholder="e.g. Kivi" /></label>
+          <label>What was written instead<input id="cRejected" placeholder="e.g. kiwi" /></label>
+          <label>Raw ASR line (optional)<input id="cAsr" placeholder="open the kiwi service" /></label>
+          <button id="corrBtn">Record</button>
+        </div>
+      </div>
+      <p class="foot" id="obsNote"></p>
+    </section>
+
+    <!-- ================= EVALUATION ================= -->
+    <section class="view" id="view-eval">
+      <header class="page-head">
+        <span class="page-icon i-eval"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v16.5A1.5 1.5 0 0 0 4.5 21H21"/><path d="m7 15 3.5-4 3 3L18 8"/></svg></span>
+        <h1>Evaluation</h1>
+      </header>
+      <p class="page-sub">Committed results from <code>python manage.py eval</code> &mdash; deterministic by construction: echo ASR, a rule-based formatter and a fixed <code>config.json</code>, so the same input always produces the same decisions.</p>
+
+      <h2 class="sec">Committed results</h2>
+      <p class="sec-sub">headline metrics and the full report, read from <code>evaluation/results/</code></p>
+      <button class="ghost" id="loadEval">Load committed results</button>
+      <div class="statgrid" id="evalStats"></div>
+      <pre class="report" id="evalReport" hidden></pre>
+    </section>
+
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => (s || '').toLowerCase().replace(/[^a-z0-9']/g, '');
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, opts);
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail || body.message || (r.status + ' ' + r.statusText));
+  return body;
+}
+
+/* ---------------- view switching ---------------- */
+document.querySelectorAll('.navlink').forEach(b => b.onclick = () => setView(b.dataset.view));
+function setView(v) {
+  document.querySelectorAll('.navlink').forEach(x => x.classList.toggle('active', x.dataset.view === v));
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'view-' + v));
+  if (v === 'memory') loadMemory();
+}
+
+/* ---------------- chat ---------------- */
+const stream = $('#stream');
+const turns = [];  // { utterance, result, el }
+
+$('#sendBtn').onclick = () => submit($('#input').value);
+$('#input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey || !e.shiftKey)) { e.preventDefault(); submit($('#input').value); }
+});
+$('#input').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; });
+document.querySelectorAll('#starters .chip').forEach(c => c.onclick = () => submit(c.dataset.s));
+
+async function submit(text) {
+  text = (text || '').trim();
+  if (!text) return;
+  $('#input').value = ''; $('#input').style.height = 'auto';
+  $('#empty') && $('#empty').remove();
+  $('#sendBtn').disabled = true;
+
+  const turn = { utterance: text, result: null, el: document.createElement('div') };
+  turn.el.className = 'turn';
+  turn.el.innerHTML = `<div class="user">${esc(text)}</div><div class="bot"><div class="meta">Kivi is listening&hellip;</div></div>`;
+  stream.append(turn.el);
+  turns.push(turn);
+  stream.scrollTop = stream.scrollHeight;
+
+  try {
+    const r = await api('/api/process', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+    turn.result = r;
+    renderTurn(turn);
+  } catch (e) {
+    turn.el.querySelector('.bot').innerHTML = `<div class="meta" style="color:var(--wrong)">${esc(e.message)}</div>`;
+  } finally {
+    $('#sendBtn').disabled = false;
+    stream.scrollTop = stream.scrollHeight;
+  }
+}
+
+function renderTurn(turn) {
+  const r = turn.result;
+  const bot = turn.el.querySelector('.bot');
+  const m = r.metrics || {};
+  bot.innerHTML = `
+    <div class="meta">
+      <span class="k">memory-aware</span>
+      <span>${m.latency_ms ?? '-'} ms</span>
+      <span>model calls ${m.model_calls ?? 0}</span>
+      <span>$${m.est_cost_usd ?? 0}</span>
+      <button data-t="levels">levels</button>
+      <button data-t="why">why</button>
+    </div>
+    <div class="levels" hidden>
+      <div><span class="tag">1 &middot; asr&nbsp;&nbsp;</span> ${esc(r.asr_text)}</div>
+      <div><span class="tag">2 &middot; fmt&nbsp;&nbsp;</span> ${esc(r.formatted_text)}</div>
+    </div>
+    <div class="result"></div>
+    <div class="why"></div>`;
+  bot.querySelector('.result').innerHTML = wordify(r);
+  bot.querySelector('[data-t="levels"]').onclick = () => {
+    const l = bot.querySelector('.levels'); l.hidden = !l.hidden;
+  };
+  bot.querySelector('[data-t="why"]').onclick = () => {
+    const w = bot.querySelector('.why');
+    if (!w.classList.contains('on')) w.innerHTML = whyHtml(r);
+    w.classList.toggle('on');
+  };
+  bindWords(bot.querySelector('.result'), turn);
+}
+
+/* build the memory-aware line with clickable, classed word spans */
+function wordify(r) {
+  const bySurface = new Map();
+  (r.decisions || []).forEach(d => {
+    const key = norm(d.replacement || d.span);
+    if (!bySurface.has(key)) bySurface.set(key, []);
+    bySurface.get(key).push(d);
+  });
+  const used = new Set();
+  let out = '';
+  const parts = (r.memory_aware_text || '').split(/([A-Za-z][A-Za-z'’-]*)/);
+  parts.forEach((chunk, i) => {
+    if (i % 2 === 0) { out += esc(chunk); return; }
+    const key = norm(chunk);
+    const list = bySurface.get(key) || [];
+    const d = list.find(x => !used.has(x));
+    let cls = 'w', title = 'click to correct';
+    if (d) {
+      used.add(d);
+      if (d.action === 'REPLACE') { cls += ' rep'; title = `${d.asr_original || d.span} → ${d.replacement} · REPLACE`; }
+      else if (d.action === 'DEFER') { cls += ' def'; title = `suggestion: ${d.matched_memory} · DEFER`; }
+      else if (d.matched_memory) { cls += ' kc'; title = `kept · ${d.reason_code}`; }
+    }
+    out += `<span class="${cls}" data-w="${esc(chunk)}"${d ? ` data-did="${d.decision_id ?? ''}"` : ''} title="${esc(title)}">${esc(chunk)}</span>`;
+  });
+  return out;
+}
+
+function whyHtml(r) {
+  const ds = r.decisions || [];
+  if (!ds.length) return `<div class="row">No memory matched any word &mdash; nothing was changed.</div>`;
+  return ds.map(d => {
+    const p = d.personal || {};
+    let acc = '';
+    if (p.method_personal && (p.rules || []).length) acc = ` <span class="accent">&#9672; accent rule ${esc(p.rules.join(', '))}</span>`;
+    else if (p.s_personal > 0) acc = ` <span class="accent">&#9672; ASR misheard this ×${p.misheard_count}</span>`;
+    return `<div class="row"><span class="b ${d.action}">${d.action}</span><b>${esc(d.span)}</b>${d.replacement ? ' → ' + esc(d.replacement) : ''} &mdash; ${esc(d.reason)}${acc}</div>`;
+  }).join('');
+}
+
+/* ---------------- inline correction ---------------- */
+function bindWords(root, turn) {
+  root.querySelectorAll('.w').forEach(span => {
+    span.onclick = e => {
+      e.stopPropagation();
+      closeMenus();
+      const d = decisionFor(turn.result, span);
+      if (d && d.action === 'DEFER' && d.matched_memory) openMenu(span, turn, d);
+      else editWord(span, turn, d);
+    };
+  });
+}
+function decisionFor(r, span) {
+  const did = span.dataset.did;
+  const w = norm(span.dataset.w);
+  return (r.decisions || []).find(d =>
+    (did && String(d.decision_id) === did) ||
+    norm(d.replacement || d.span) === w) || null;
+}
+function closeMenus() { document.querySelectorAll('.wmenu').forEach(m => m.remove()); }
+document.addEventListener('click', closeMenus);
+
+function openMenu(span, turn, d) {
+  const m = document.createElement('div');
+  m.className = 'wmenu';
+  m.innerHTML = `<button class="accept">Accept &rarr; ${esc(d.matched_memory)}</button><button class="fix">Fix&hellip;</button>`;
+  document.body.append(m);
+  const r = span.getBoundingClientRect();
+  m.style.top = (window.scrollY + r.bottom + 6) + 'px';
+  m.style.left = (window.scrollX + r.left) + 'px';
+  m.querySelector('.accept').onclick = ev => { ev.stopPropagation(); closeMenus(); acceptSuggestion(turn, d); };
+  m.querySelector('.fix').onclick = ev => { ev.stopPropagation(); closeMenus(); editWord(span, turn, d); };
+}
+
+function editWord(span, turn, d) {
+  const original = span.dataset.w;
+  const inp = document.createElement('input');
+  inp.className = 'wfix'; inp.value = original; inp.size = Math.max(2, original.length + 1);
+  inp.oninput = () => inp.size = Math.max(2, inp.value.length + 1);
+  span.replaceWith(inp);
+  inp.focus(); inp.select();
+  let done = false;
+  const cancel = () => { if (done) return; done = true; inp.replaceWith(span); };
+  inp.onclick = ev => ev.stopPropagation();
+  inp.onkeydown = ev => {
+    ev.stopPropagation();
+    if (ev.key === 'Escape') { ev.preventDefault(); cancel(); }
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      const val = inp.value.trim();
+      done = true;
+      inp.replaceWith(span);
+      if (val && norm(val) !== norm(original)) applyFix(turn, d, original, val);
+    }
+  };
+  inp.onblur = cancel;
+}
+
+async function applyFix(turn, d, wrongWord, rightWord) {
+  const r = turn.result;
+  const revertingReplace = d && d.action === 'REPLACE' &&
+    norm(rightWord) === norm(d.asr_original || d.span);
+  const body = revertingReplace
+    ? { type: 'rejection', rejected_form: d.matched_memory, chosen_form: rightWord }
+    : { type: 'explicit_correction', chosen_form: rightWord, rejected_form: wrongWord };
+  body.formatted_text = r.formatted_text;
+  body.raw_asr_text = r.asr_text;
+  if (d && d.decision_id) body.decision_id = d.decision_id;
+  await observeAndReprocess(turn, body, rightWord, wrongWord);
+}
+async function acceptSuggestion(turn, d) {
+  const r = turn.result;
+  const body = {
+    type: 'confirmation', chosen_form: d.matched_memory,
+    rejected_form: d.asr_original || d.span,
+    formatted_text: r.formatted_text, raw_asr_text: r.asr_text
+  };
+  if (d.decision_id) body.decision_id = d.decision_id;
+  await observeAndReprocess(turn, body, d.matched_memory, d.span);
+}
+
+async function observeAndReprocess(turn, body, highlightWord, prevWord) {
+  toast('');
+  try {
+    await api('/api/observe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  } catch (e) { toast('could not record correction: ' + e.message); return; }
+  try {
+    const r = await api('/api/process', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: turn.utterance }) });
+    turn.result = r;
+    renderTurn(turn);
+    flashWord(turn.el, highlightWord || prevWord);
+  } catch (e) { toast('re-process failed: ' + e.message); }
+  if ($('#view-memory').classList.contains('on')) loadMemory();
+}
+
+function flashWord(turnEl, word) {
+  const w = norm(word);
+  turnEl.querySelectorAll('.result .w').forEach(s => {
+    if (norm(s.dataset.w) === w) {
+      s.classList.add('flash');
+      setTimeout(() => s.classList.remove('flash'), 1300);
+    }
+  });
+}
+function toast(msg) { $('#toast').textContent = msg || ''; }
+
+/* ---------------- recording ---------------- */
+let rec, chunks = [];
+$('#micBtn').onclick = async () => {
+  if (rec && rec.state === 'recording') { rec.stop(); return; }
+  try {
+    const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    rec = new MediaRecorder(mediaStream); chunks = [];
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = async () => {
+      mediaStream.getTracks().forEach(t => t.stop());
+      $('#micBtn').classList.remove('rec');
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      $('#playback').src = URL.createObjectURL(blob); $('#playback').hidden = false;
+      const fd = new FormData(); fd.append('audio', blob, 'rec.webm');
+      toast('transcribing…');
+      try {
+        const r = await api('/api/process-audio', { method: 'POST', body: fd });
+        toast('');
+        const turn = { utterance: r.asr_text, result: r, el: document.createElement('div') };
+        turn.el.className = 'turn';
+        turn.el.innerHTML = `<div class="user">${esc(r.asr_text)}</div><div class="bot"></div>`;
+        $('#empty') && $('#empty').remove();
+        stream.append(turn.el);
+        turns.push(turn); renderTurn(turn);
+        stream.scrollTop = stream.scrollHeight;
+      } catch (e) {
+        toast(/real ASR|409/.test(e.message)
+          ? 'Voice needs a Whisper provider (see RUN.md §8). Type instead — echo ASR handles typed text.'
+          : e.message);
+      }
+    };
+    rec.start();
+    $('#micBtn').classList.add('rec');
+    setTimeout(() => { if (rec && rec.state === 'recording') rec.stop(); }, 60000);
+  } catch (e) { toast('mic unavailable — type instead'); }
+};
+
+/* ---------------- memory ---------------- */
+const _ts = s => { if (!s) return '—'; const d = new Date(s); return isNaN(d) ? String(s) : d.toISOString().slice(5, 16).replace('T', ' '); };
+const _n3 = v => (v == null || v === '' ? '—' : Number(v).toFixed(3));
+const _n2 = v => Number(v || 0).toFixed(2);
+const _clamp = v => Math.max(0, Math.min(1, Number(v) || 0));
+
+async function loadMemory() {
+  let counts = {};
+  try { counts = (await api('/api/health')).counts || {}; } catch (e) {}
+
+  const decByMem = new Map();
+  try {
+    const d = await api('/api/decisions');
+    (d.items || []).forEach(x => {
+      const k = x.candidate_memory_id;
+      if (k == null) return;
+      if (!decByMem.has(k)) decByMem.set(k, []);
+      decByMem.get(k).push(x);
+    });
+  } catch (e) {}
+
+  const r = await api('/api/memory');
+  const items = r.items || [];
+  const full = await Promise.all(items.map(it => api('/api/memory/' + it.id).catch(() => null)));
+
+  renderVitals(counts, items);
+  renderAccent();
+  renderEntries(items, full, decByMem);
+}
+
+/* ---- vitals: one big number + a confidence chart ---- */
+function renderVitals(c, items) {
+  const active = items.filter(m => m.status === 'active').length;
+  const avg = items.length ? items.reduce((a, m) => a + (m.confidence || 0), 0) / items.length : 0;
+  const bars = items.slice().sort((a, b) => (b.confidence || 0) - (a.confidence || 0)).map(m => `
+    <div class="vb">
+      <span class="vb-n">${esc(m.canonical_form)}</span>
+      <span class="vb-t"><i style="width:${Math.round(_clamp(m.confidence) * 100)}%"></i></span>
+      <span class="vb-v">${_n2(m.confidence)}</span>
+    </div>`).join('');
+  const stat = (n, l) => `<div class="vs"><b>${n ?? '—'}</b><span>${l}</span></div>`;
+  $('#vitals').innerHTML = `
+    <div class="vitals-lead">
+      <div class="vitals-big">${items.length}</div>
+      <div class="vitals-cap">terms Kivi keeps</div>
+      <div class="vitals-sub">${active} active &middot; average confidence ${_n2(avg)}</div>
+      <div class="vitals-stats">
+        ${stat(c.alias, 'aliases')}
+        ${stat(c.observation, 'observations')}
+        ${stat(c.evidence, 'evidence rows')}
+        ${stat(c.sound_pattern, 'accent rules')}
+      </div>
+    </div>
+    <div class="vitals-chart">
+      <div class="vitals-chart-h">Confidence by term</div>
+      ${bars || '<p class="empty-note">Nothing remembered yet.</p>'}
+    </div>`;
+}
+
+/* ---- accent profile: a card per rule, with a waveform whose height tracks weight ---- */
+function waveBars(w) {
+  let out = '';
+  for (let i = 0; i < 20; i++) {
+    const base = (Math.sin(i * 0.85) + Math.sin(i * 1.9)) / 4 + 0.55;
+    out += `<i style="height:${Math.round(5 + base * 26 * (0.35 + w * 0.65))}px"></i>`;
+  }
+  return out;
+}
+
+async function renderAccent() {
+  let p;
+  try { p = await api('/api/phonetic-profile'); } catch (e) { return; }
+  const g = $('#accentGrid');
+  $('#accentCount').textContent = p.count ? `${p.active_count} of ${p.count} firing` : '';
+  $('#accentNote').textContent = p.note || '';
+  if (!p.rules.length) {
+    g.innerHTML = `<p class="accent-empty">No rules yet. Correct a mishearing on the Transcribe tab &mdash; Kivi aligns what you typed against what the recogniser produced and keeps the difference here.</p>`;
+    return;
+  }
+  g.innerHTML = p.rules.map(x => {
+    const w = _clamp(x.weight);
+    return `<article class="accent-card${x.active ? ' on' : ''}">
+      <span class="accent-wave" aria-hidden="true">${waveBars(w)}</span>
+      <div class="accent-rule"><span>${esc(x.src || '∅')}</span><em>&rarr;</em><span>${esc(x.dst || '∅')}</span></div>
+      <div class="accent-pos">${esc(x.position)} &middot; ${esc(x.origin)}</div>
+      <div class="accent-meter"><i style="width:${Math.round(w * 100)}%"></i></div>
+      <div class="accent-foot">
+        <span class="accent-w">${_n2(x.weight)}</span>
+        <span class="accent-s">${x.observations} of ${p.min_observations_to_activate} sightings</span>
+        <span class="accent-badge">${x.active ? 'firing' : 'below threshold'}</span>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+/* ---- terms: cards with an SVG confidence ring ---- */
+function ring(v) {
+  const R = 25, C = 2 * Math.PI * R, off = C * (1 - _clamp(v));
+  return `<span class="ring">
+    <svg viewBox="0 0 60 60" aria-hidden="true">
+      <circle class="ring-t" cx="30" cy="30" r="${R}"></circle>
+      <circle class="ring-v" cx="30" cy="30" r="${R}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"></circle>
+    </svg>
+    <b>${Math.round(_clamp(v) * 100)}</b>
+  </span>`;
+}
+
+function renderEntries(items, full, decByMem) {
+  const list = $('#memList');
+  list.innerHTML = '';
+  $('#memCount').textContent = `${items.length} ${items.length === 1 ? 'term' : 'terms'}`;
+  items.forEach((m, i) => {
+    const d = full[i];
+    const decs = decByMem.get(m.id) || [];
+    const als = (m.aliases || []).map(a => (typeof a === 'string' ? a : (a && a.surface_form) || ''));
+    const shown = als.slice(0, 4).map(a => `<span class="al">${esc(a)}</span>`).join('');
+    const more = als.length > 4 ? `<span class="al more">+${als.length - 4}</span>` : '';
+    const nEv = d ? d.evidence.length : '—';
+    const nObs = d ? d.observations.length : '—';
+
+    const card = document.createElement('article');
+    card.className = 'mem-card';
+    card.innerHTML = `
+      <button class="mem-head" type="button" aria-expanded="false">
+        ${ring(m.confidence)}
+        <span class="mem-id">
+          <span class="mem-name">${esc(m.canonical_form)}</span>
+          <span class="mem-type">${esc(m.entity_type)} &middot; <em class="st-${esc(m.status)}">${esc(m.status)}</em></span>
+        </span>
+        <span class="mem-aliases">${shown}${more}</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="mem-meta"><span><b>${nEv}</b> evidence</span><span><b>${nObs}</b> observations</span><span><b>${decs.length}</b> decisions</span></div>
+      <div class="mem-body" hidden></div>`;
+
+    const head = card.querySelector('.mem-head');
+    const body = card.querySelector('.mem-body');
+    head.onclick = () => {
+      const open = body.hidden;
+      card.classList.toggle('open', open);
+      body.hidden = !open;
+      head.setAttribute('aria-expanded', String(open));
+      if (open && !body.dataset.filled) {
+        if (d) { renderMemBody(body, d, decs); body.dataset.filled = '1'; }
+        else body.innerHTML = `<p class="empty-note">Detail for this term could not be loaded.</p>`;
+      }
+    };
+    list.append(card);
+  });
+}
+
+function renderMemBody(el, m, decs) {
+  const pc = m.positive_contexts || {}, nc = m.negative_contexts || {};
+
+  const total = m.evidence.reduce((a, e) => a + Math.abs(Number(e.weight) || 0), 0) || 1;
+  const evBar = m.evidence.length
+    ? `<div class="ev-bar">${m.evidence.map(e => {
+        const w = Number(e.weight) || 0;
+        return `<i class="${w >= 0 ? 'p' : 'n'}" style="flex:${Math.abs(w) / total}"></i>`;
+      }).join('')}</div>` : '';
+  const evList = m.evidence.length
+    ? `<ul class="ev-list">${m.evidence.map(e => `<li>
+        <span class="ev-k">${esc(String(e.kind).replace(/_/g, ' '))}</span>
+        <span class="ev-scope">${esc(e.context_key || 'global')}</span>
+        <span class="ev-w ${e.weight >= 0 ? 'p' : 'n'}">${e.weight >= 0 ? '+' : ''}${e.weight}</span>
+      </li>`).join('')}</ul>`
+    : `<p class="empty-note">No evidence yet &mdash; confidence stays at its starting value until an observation adds a row.</p>`;
+
+  const alias = m.aliases.length
+    ? `<div class="al-grid">${m.aliases.map(a => `<div class="al-card">
+        <span class="al-s">${esc(a.surface_form)}</span>
+        <span class="al-m">${esc(a.origin)} &middot; seen ${a.observation_count}&times; &middot; key ${esc(a.phonetic_key || '—')}</span>
+      </div>`).join('')}</div>`
+    : `<p class="empty-note">No aliases recorded.</p>`;
+
+  const kw = (label, xs) => `<div class="ctx-line"><span class="k">${label}</span>${
+    (xs && xs.length) ? `<span class="chipset">${xs.map(k => `<span class="chip2">${esc(k)}</span>`).join('')}</span>`
+                      : '<span class="empty-note">none</span>'}</div>`;
+
+  const obs = m.observations.length
+    ? `<ol class="tl">${m.observations.map(o => `<li>
+        <span class="tl-t">${_ts(o.ts)}</span>
+        <span class="tl-b"><b>${esc(String(o.type).replace(/_/g, ' '))}</b>
+          <span>kept <em>${esc(o.chosen_form || '—')}</em>${o.rejected_form ? ` over <s>${esc(o.rejected_form)}</s>` : ''}</span>
+          ${(o.target_span || o.raw_asr_text) ? `<span class="tl-q">&ldquo;${esc(o.target_span || o.raw_asr_text)}&rdquo;</span>` : ''}
+        </span>
+      </li>`).join('')}</ol>`
+    : `<p class="empty-note">No observations linked to this term.</p>`;
+
+  const tally = decs.reduce((a, x) => (a[x.action] = (a[x.action] || 0) + 1, a), {});
+  const dec = decs.length
+    ? `<div class="dec-sum">
+        <span class="d rep">${tally.REPLACE || 0} replaced</span>
+        <span class="d def">${tally.DEFER || 0} deferred</span>
+        <span class="d keep">${tally.KEEP || 0} kept as written</span>
+      </div>
+      <ul class="dec-list">${decs.slice(0, 8).map(x => `<li>
+        <span class="dec-a">${esc(x.action)}</span>
+        <span class="dec-r">${esc(x.reason_code || '')}${x.reason_text ? `<em>${esc(x.reason_text)}</em>` : ''}</span>
+        <span class="dec-s">${_n3(x.combined_score)}</span>
+      </li>`).join('')}</ul>`
+    : `<p class="empty-note">This term has not been a candidate in any recorded decision.</p>`;
+
+  el.innerHTML = `
+    <div class="blk"><h4>Confidence <em>built only from these rows</em></h4>${evBar}${evList}</div>
+    <div class="blk"><h4>Aliases <em>surface forms that resolve here</em></h4>${alias}</div>
+    <div class="blk"><h4>Context</h4>
+      ${kw('appears with', pc.keywords)}${kw('in domains', pc.domains)}
+      ${kw('kept away from', nc.keywords)}${kw('not in domains', nc.domains)}</div>
+    <div class="blk"><h4>Observation log <em>append-only</em></h4>${obs}</div>
+    <div class="blk"><h4>Decisions that weighed this term</h4>${dec}</div>
+    <div class="blk blk-foot">
+      <div class="ctx-line"><span class="k">source</span><span>${esc(m.source || '—')}</span></div>
+      <div class="ctx-line"><span class="k">notes</span><span>${esc(m.notes || '—')}</span></div>
+      <div class="mem-actions">
+        <button class="btn-danger" type="button">Deactivate this term</button>
+        <span class="empty-note">retrieval skips it; a later observation can bring it back</span>
+      </div>
+    </div>`;
+
+  const btn = el.querySelector('.btn-danger');
+  btn.onclick = async ev => {
+    ev.stopPropagation();
+    if (btn.dataset.armed !== '1') { btn.dataset.armed = '1'; btn.textContent = 'Confirm deactivation'; return; }
+    btn.disabled = true; btn.textContent = 'Deactivating…';
+    try { await api('/api/memory/' + m.id, { method: 'DELETE' }); await loadMemory(); }
+    catch (e) { btn.disabled = false; btn.textContent = e.message; }
+  };
+}
+
+$('#teachBtn').onclick = async () => {
+  const canonical_form = $('#tCanon').value.trim();
+  if (!canonical_form) { $('#obsNote').textContent = 'Enter a canonical form to teach.'; return; }
+  const body = {
+    canonical_form, entity_type: $('#tType').value.trim() || 'term',
+    positive_keywords: ($('#tKw').value || '').split(',').map(s => s.trim()).filter(Boolean),
+  };
+  try {
+    await api('/api/memory', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    $('#tCanon').value = ''; $('#tKw').value = '';
+    $('#obsNote').textContent = `Taught “${canonical_form}”. It appears below as a proposed entry until more evidence arrives.`;
+    loadMemory();
+  } catch (e) { $('#obsNote').textContent = e.message; }
+};
+
+$('#corrBtn').onclick = async () => {
+  const chosen = $('#cChosen').value.trim(), rejected = $('#cRejected').value.trim();
+  if (!chosen || !rejected) { $('#obsNote').textContent = 'A correction needs both the wanted form and what was written instead.'; return; }
+  const body = { type: 'explicit_correction', chosen_form: chosen, rejected_form: rejected };
+  const asr = $('#cAsr').value.trim(); if (asr) body.raw_asr_text = asr;
+  try {
+    await api('/api/observe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    $('#cChosen').value = ''; $('#cRejected').value = ''; $('#cAsr').value = '';
+    $('#obsNote').textContent = `Recorded: “${rejected}” should have been “${chosen}”.`;
+    loadMemory();
+  } catch (e) { $('#obsNote').textContent = e.message; }
+};
+
+/* ---------------- eval view ---------------- */
+$('#loadEval').onclick = async () => {
+  try {
+    const r = await api('/api/evaluation/results');
+    const h = r.summary.headline, pp = r.summary.personal_phonetics || {};
+    const cards = [
+      ['pass rate', (h.pass_rate * 100).toFixed(0) + '%'],
+      ['cases', h.passed + ' / ' + h.cases],
+      ['non-intervention', (h.non_intervention_accuracy * 100).toFixed(0) + '%'],
+      ['over-intervention', h.over_intervention_count],
+      ['memory stability', h.memory_stability_pass],
+      ['idempotency', h.idempotency_pass],
+      ['personal phonetics', (pp.passed ?? '-') + ' / ' + (pp.cases ?? '-')],
+      ['model calls', r.summary.model_usage.total_model_calls],
+    ];
+    $('#evalStats').innerHTML = cards.map(([l, n]) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+    $('#evalReport').textContent = r.report_md; $('#evalReport').hidden = false;
+  } catch (e) { $('#evalStats').innerHTML = `<div class="sub">${esc(e.message)} &mdash; run <span class="mono">python manage.py eval</span></div>`; }
+};
+
+/* ---------------- reset ---------------- */
+$('#resetBtn').onclick = async () => {
+  await api('/api/admin/reset', { method: 'POST' });
+  turns.length = 0;
+  stream.innerHTML = `<div class="empty">Reset to seed. Start again above.</div>`;
+  toast('');
+  if ($('#view-memory').classList.contains('on')) loadMemory();
+};
+</script>
+<script>(function(){var c=document.getElementById('clock');function t(){if(c)c.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}t();setInterval(t,15000);})();</script>
+<script>
+/* sidebar session-state counters — refreshed after any mutating API call */
+(function () {
+  var box = document.getElementById('sideStats');
+  function refreshSide() {
+    if (!box) return;
+    fetch('/api/health').then(function (r) { return r.json(); }).then(function (h) {
+      var c = (h && h.counts) || {};
+      box.querySelectorAll('b[data-k]').forEach(function (b) {
+        var v = c[b.getAttribute('data-k')];
+        b.textContent = (v === undefined || v === null) ? '\u2013' : v;
+      });
+    }).catch(function () {});
+  }
+  var _fetch = window.fetch;
+  window.fetch = function () {
+    var args = arguments;
+    return _fetch.apply(window, args).then(function (r) {
+      try {
+        var url = String(args[0] || '');
+        var method = ((args[1] || {}).method || 'GET').toUpperCase();
+        if (url.indexOf('/api/') === 0 && method !== 'GET') setTimeout(refreshSide, 90);
+      } catch (e) {}
+      return r;
+    });
+  };
+  refreshSide();
+})();
+</script>
+</body>
+</html>

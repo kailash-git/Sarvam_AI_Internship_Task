@@ -1,0 +1,39 @@
+{
+  "id": "noninterv-01",
+  "category": "contextual_contradiction",
+  "description": "flagship: fruit context -> deliberate KEEP",
+  "input": "I ate a kiwi today",
+  "expected_output": "I ate a kiwi today.",
+  "actual_output": "I ate a kiwi today.",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 0.65). 'Kivi' is unaffected.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.65,
+    "s_ctx": -0.65,
+    "confidence": 0.841,
+    "combined": 0.0
+  },
+  "asr_text": "i ate a kiwi today",
+  "formatted_text": "I ate a kiwi today.",
+  "memory_aware_text": "I ate a kiwi today.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": true,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 3.28,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

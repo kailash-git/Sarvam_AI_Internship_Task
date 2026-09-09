@@ -1,0 +1,39 @@
+{
+  "id": "repeated-01",
+  "category": "repeated_observation",
+  "description": "3 weak observations accumulate but stay proposed -> DEFER",
+  "input": "open the lumen panel",
+  "expected_output": "Open the lumen panel.",
+  "actual_output": "Open the lumen panel.",
+  "expected_action": "DEFER",
+  "actual_action": "DEFER",
+  "reason": "Suggested 'Lumen' for 'lumen' but memory is 'proposed' (confidence 0.38); needs your confirmation before it will auto-replace.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 1.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 1.0,
+    "confidence": 0.379,
+    "combined": 0.379
+  },
+  "asr_text": "open the lumen panel",
+  "formatted_text": "Open the lumen panel.",
+  "memory_aware_text": "Open the lumen panel.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 2.19,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

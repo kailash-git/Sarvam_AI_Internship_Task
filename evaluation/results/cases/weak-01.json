@@ -1,0 +1,39 @@
+{
+  "id": "weak-01",
+  "category": "weak_memory",
+  "description": "proposed memory -> DEFER, never auto-REPLACE",
+  "input": "we should ship devy this sprint",
+  "expected_output": "We should ship devy this sprint.",
+  "actual_output": "We should ship devy this sprint.",
+  "expected_action": "DEFER",
+  "actual_action": "DEFER",
+  "reason": "Suggested 'Devi' for 'devy' but memory is 'proposed' (confidence 0.38); needs your confirmation before it will auto-replace.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.7,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.7,
+    "confidence": 0.379,
+    "combined": 0.379
+  },
+  "asr_text": "we should ship devy this sprint",
+  "formatted_text": "We should ship devy this sprint.",
+  "memory_aware_text": "We should ship devy this sprint.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 2.4,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

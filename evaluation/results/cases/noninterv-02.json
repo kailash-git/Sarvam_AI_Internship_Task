@@ -1,0 +1,39 @@
+{
+  "id": "noninterv-02",
+  "category": "contextual_contradiction",
+  "description": "another food context",
+  "input": "the kiwi juice was tasty",
+  "expected_output": "The kiwi juice was tasty.",
+  "actual_output": "The kiwi juice was tasty.",
+  "expected_action": "KEEP",
+  "actual_action": "KEEP",
+  "reason": "Kept 'kiwi' unchanged. Memory 'Kivi' matches (exact, 1.00), but the surrounding words match this memory's do-not-apply context (negative-context score 1.00). 'Kivi' is unaffected.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 1.0,
+    "s_ctx": -1.0,
+    "confidence": 0.841,
+    "combined": 0.0
+  },
+  "asr_text": "the kiwi juice was tasty",
+  "formatted_text": "The kiwi juice was tasty.",
+  "memory_aware_text": "The kiwi juice was tasty.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": true,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 3.41,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

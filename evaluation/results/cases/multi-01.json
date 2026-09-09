@@ -1,0 +1,39 @@
+{
+  "id": "multi-01",
+  "category": "multi_entity",
+  "description": "entity #1 has software context (REPLACE); entity #2 has no supporting context, so it is only surfaced as a suggestion (DEFER), not auto-applied",
+  "input": "open kiwi and tell sibi",
+  "expected_output": "Open Kivi and tell sibi.",
+  "actual_output": "Open Kivi and tell sibi.",
+  "expected_action": "DEFER",
+  "actual_action": "DEFER",
+  "reason": "Deferred on 'sibi'. 'Sivi' is plausible (combined 0.42) but below the replace threshold (0.55). Shown as a suggestion.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.0,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.0,
+    "confidence": 0.712,
+    "combined": 0.419
+  },
+  "asr_text": "open kiwi and tell sibi",
+  "formatted_text": "Open kiwi and tell sibi.",
+  "memory_aware_text": "Open Kivi and tell sibi.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 2.12,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

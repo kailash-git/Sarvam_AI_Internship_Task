@@ -1,0 +1,39 @@
+{
+  "id": "company-01",
+  "category": "entity_type_company",
+  "description": "company mishearing -> REPLACE",
+  "input": "I work at sarwam now",
+  "expected_output": "I work at Sarvam now.",
+  "actual_output": "I work at Sarvam now.",
+  "expected_action": "REPLACE",
+  "actual_action": "REPLACE",
+  "reason": "Replaced 'sarwam' with 'Sarvam': exact match (surface 1.00) to an active memory (confidence 0.74); context score +0.35. Combined 0.74.",
+  "scores": {
+    "s_surf": 1.0,
+    "s_ctx_pos": 0.35,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.35,
+    "confidence": 0.745,
+    "combined": 0.745
+  },
+  "asr_text": "i work at sarwam now",
+  "formatted_text": "I work at sarwam now.",
+  "memory_aware_text": "I work at Sarvam now.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 1.42,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

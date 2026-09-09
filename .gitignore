@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+<<<<<<< HEAD
+.venv/
+venv/
+database/kivi.db
+database/kivi.db-*
+backend/uploads/
+.DS_Store
+node_modules/
+=======
+.pytest_cache/
+.venv/
+venv/
+.env
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.DS_Store
+>>>>>>> 6d3bcdf4a6716ab829c395c210736b0c12063223

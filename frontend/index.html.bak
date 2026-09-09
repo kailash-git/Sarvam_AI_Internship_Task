@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kivi &middot; Personal Phonetic Memory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --midnight: #000000;
+    --obsidian: #0f0f10;
+    --indigo: #030719;
+    --navy: #001b33;
+    --charcoal: #1c1d1f;
+    --graphite: #333333;
+    --fog: #70757c;
+    --ash: #888b91;
+    --mist: #b8babf;
+    --pearl: #cccccc;
+    --white: #ffffff;
+    --electric: #0088ff;
+    --sky: #60a5fa;
+    --amber: #ffb764;
+    --mint: #27c93f;
+    --wrong: #ff5c5c;
+    --hair: rgba(255,255,255,0.10);
+    --hair-2: rgba(255,255,255,0.06);
+    --aurora: linear-gradient(#000000 0.85%, #112d72 33.4%, #4b52aa 49.68%, #a887dc 70.84%, #e6c4e7 95.8%, #fcdbef 107.19%);
+    --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--midnight); }
+  body {
+    font-family: var(--font);
+    font-feature-settings: "ss01" 1, "cv11" 1;
+    color: var(--white);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  a { color: var(--sky); text-decoration: none; }
+  a:hover { color: var(--white); }
+  button { font-family: inherit; cursor: pointer; }
+  ::selection { background: rgba(0,136,255,0.35); }
+
+  /* ---------- nav ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 40;
+    display: flex; justify-content: center;
+    padding: 16px;
+    background: linear-gradient(var(--midnight) 55%, transparent);
+  }
+  .pill {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--obsidian);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 9999px;
+    padding: 6px 8px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 600; font-size: 13px; letter-spacing: -0.3px;
+    padding: 4px 10px 4px 6px; color: var(--white);
+  }
+  .brand .dot {
+    width: 14px; height: 14px; border-radius: 5px;
+    background: var(--aurora); background-size: 100% 320%;
+  }
+  .navlink {
+    background: none; border: 0; color: var(--ash);
+    font-size: 13px; padding: 6px 12px; border-radius: 9999px;
+  }
+  .navlink:hover { color: var(--white); }
+  .navlink.active { color: var(--white); }
+  .nav-reset {
+    background: var(--white); color: #000; border: 0;
+    font-size: 13px; font-weight: 500; letter-spacing: -0.1px;
+    padding: 6px 14px; border-radius: 9999px; margin-left: 4px;
+  }
+  .nav-reset:hover { background: #e9e9e9; }
+
+  /* ---------- shell ---------- */
+  main { max-width: 760px; margin: 0 auto; padding: 8px 20px 96px; transition: max-width .18s ease, padding .18s ease; }
+  main:has(#view-chat.on) { max-width: 1060px; }
+  main:has(#view-eval.on) { max-width: 900px; }
+  main:has(#view-memory.on) { max-width: none; padding-left: clamp(24px, 6vw, 112px); padding-right: clamp(24px, 6vw, 112px); }
+  .view { display: none; }
+  .view.on { display: block; }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; text-align: center; padding: 40px 0 28px; }
+  .hero .bloom {
+    position: absolute; inset: -60px 0 auto 0; height: 260px; margin: auto;
+    max-width: 620px;
+    background: radial-gradient(60% 60% at 50% 30%, rgba(75,82,170,0.5), rgba(168,135,220,0.28) 45%, transparent 72%);
+    filter: blur(46px); pointer-events: none; z-index: 0;
+  }
+  .hero h1 {
+    position: relative; z-index: 1; margin: 0;
+    font-size: 60px; font-weight: 500; letter-spacing: -3.42px; line-height: 1.06;
+  }
+  .hero p {
+    position: relative; z-index: 1; margin: 14px auto 0; max-width: 440px;
+    font-size: 18px; font-weight: 400; letter-spacing: -0.18px; color: var(--mist);
+  }
+  @media (max-width: 640px) { .hero h1 { font-size: 40px; letter-spacing: -2.2px; } }
+
+  /* ---------- chat card ---------- */
+  .card {
+    position: relative;
+    background: var(--obsidian);
+    border: 1px solid var(--hair);
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: linear-gradient(90deg, #112d72, #4b52aa, #a887dc, #e6c4e7);
+    opacity: 0.9;
+  }
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--hair-2);
+  }
+  .card-head .label { font-size: 12px; letter-spacing: 0.3px; color: var(--ash); text-transform: uppercase; }
+  .card-head .hint { font-family: var(--mono); font-size: 11px; color: var(--fog); }
+
+  .stream { padding: 28px; min-height: 560px; max-height: 74vh; overflow-y: auto; }
+  .stream::-webkit-scrollbar { width: 8px; }
+  .stream::-webkit-scrollbar-thumb { background: var(--graphite); border-radius: 4px; }
+
+  .empty { color: var(--fog); font-size: 14px; padding: 24px 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .chip {
+    background: var(--charcoal); border: 1px solid var(--hair-2); color: var(--mist);
+    font-size: 12px; padding: 6px 10px; border-radius: 9px;
+  }
+  .chip:hover { color: var(--white); border-color: var(--hair); }
+
+  /* ---------- messages ---------- */
+  .turn { margin-bottom: 22px; }
+  .user {
+    display: inline-block; max-width: 85%; float: right; clear: both;
+    background: var(--charcoal); border: 1px solid var(--hair-2);
+    border-radius: 14px 14px 4px 14px;
+    padding: 9px 13px; font-size: 14px; color: var(--pearl);
+  }
+  .bot { clear: both; padding-top: 8px; }
+  .bot .meta {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    font-size: 11px; color: var(--fog); margin-bottom: 6px;
+  }
+  .bot .meta .k { color: var(--ash); }
+  .bot .meta button {
+    background: none; border: 1px solid var(--hair); color: var(--ash);
+    font-size: 11px; border-radius: 9999px; padding: 2px 9px;
+  }
+  .bot .meta button:hover { color: var(--white); }
+  .bot .levels { margin: 4px 0 8px; font-family: var(--mono); font-size: 11px; color: var(--fog); }
+  .bot .levels div { padding: 2px 0; }
+  .bot .levels .tag { color: var(--ash); }
+  .result {
+    font-size: 20px; letter-spacing: -0.2px; line-height: 1.55; color: var(--white);
+  }
+  .why { margin-top: 10px; border-top: 1px solid var(--hair-2); padding-top: 10px; display: none; }
+  .why.on { display: block; }
+  .why .row { font-size: 12px; color: var(--mist); padding: 5px 0; }
+  .why .row .b {
+    display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+    padding: 1px 6px; border-radius: 5px; margin-right: 6px; vertical-align: 1px;
+  }
+  .b.REPLACE { background: rgba(0,136,255,0.16); color: #7ec2ff; }
+  .b.DEFER   { background: rgba(255,183,100,0.16); color: var(--amber); }
+  .b.KEEP    { background: rgba(255,255,255,0.08); color: var(--mist); }
+  .why .accent { color: var(--electric); }
+
+  /* ---------- interactive words ---------- */
+  .w {
+    border-radius: 4px; padding: 0 1px; cursor: text;
+    transition: background .12s ease;
+  }
+  .w:hover { background: rgba(255,255,255,0.08); }
+  .w.rep { color: #fff; background: rgba(0,136,255,0.14); box-shadow: inset 0 -2px 0 var(--electric); }
+  .w.def { color: var(--amber); border-bottom: 1px dashed rgba(255,183,100,0.7); }
+  .w.kc  { border-bottom: 1px dotted rgba(255,255,255,0.25); }
+  .w.flash { background: rgba(39,201,63,0.22); color: var(--mint); box-shadow: none; }
+  .wfix {
+    font: inherit; color: var(--wrong);
+    background: rgba(255,92,92,0.12); border: 0;
+    border-bottom: 1px solid var(--wrong); border-radius: 3px;
+    padding: 0 2px; outline: none; min-width: 2ch;
+  }
+  .wmenu {
+    position: absolute; z-index: 60; background: var(--charcoal);
+    border: 1px solid var(--hair); border-radius: 9px; padding: 4px;
+    display: flex; gap: 4px; box-shadow: rgba(0,0,0,0.4) 0 8px 24px;
+  }
+  .wmenu button {
+    background: none; border: 0; color: var(--mist); font-size: 12px;
+    padding: 5px 9px; border-radius: 6px;
+  }
+  .wmenu button:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+  .wmenu button.accept { color: #7ec2ff; }
+
+  /* ---------- composer ---------- */
+  .composer {
+    display: flex; align-items: flex-end; gap: 8px;
+    padding: 14px 20px 18px; border-top: 1px solid var(--hair-2);
+  }
+  .mic {
+    flex: none; width: 38px; height: 38px; border-radius: 9px;
+    background: var(--charcoal); border: 1px solid var(--hair); color: var(--mist);
+    font-size: 15px; display: grid; place-items: center;
+  }
+  .mic:hover { color: var(--white); }
+  .mic.rec { color: var(--wrong); border-color: rgba(255,92,92,0.5); }
+  .composer textarea {
+    flex: 1; resize: none; font: inherit; font-size: 15px;
+    background: var(--charcoal); color: var(--white);
+    border: 1px solid var(--hair); border-radius: 9px;
+    padding: 9px 12px; max-height: 120px; outline: none;
+  }
+  .composer textarea::placeholder { color: var(--fog); }
+  .composer textarea:focus { border-color: rgba(255,255,255,0.25); }
+  .send {
+    flex: none; background: var(--white); color: #000; border: 0;
+    font-size: 14px; font-weight: 500; letter-spacing: -0.1px;
+    padding: 10px 16px; border-radius: 9px;
+  }
+  .send:hover { background: #e9e9e9; }
+  .send:disabled { opacity: 0.4; }
+  .toast { padding: 0 20px 14px; font-size: 12px; color: var(--amber); }
+  .toast:empty { display: none; }
+
+  /* ---------- memory / eval ---------- */
+  .section { margin-top: 20px; }
+  .feature {
+    background: var(--indigo); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px; padding: 24px; margin-bottom: 16px;
+  }
+  .feature.navy { background: var(--navy); }
+  .feature h2 { margin: 0 0 4px; font-size: 24px; font-weight: 500; letter-spacing: -0.6px; }
+  .feature .sub { color: var(--ash); font-size: 13px; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--fog); font-weight: 500; padding: 8px 10px; border-bottom: 1px solid var(--hair); }
+  td { padding: 9px 10px; border-bottom: 1px solid var(--hair-2); color: var(--mist); }
+  tr.click { cursor: pointer; }
+  tr.click:hover td { color: var(--white); }
+  .mono { font-family: var(--mono); font-size: 11px; }
+  .tag { font-size: 10px; padding: 1px 7px; border-radius: 5px; font-weight: 600; }
+  .tag.active { background: rgba(39,201,63,0.16); color: var(--mint); }
+  .tag.proposed { background: rgba(255,183,100,0.16); color: var(--amber); }
+  .tag.contested, .tag.inactive { background: rgba(255,255,255,0.08); color: var(--ash); }
+  .alias { display: inline-block; background: var(--charcoal); border-radius: 5px; padding: 1px 6px; margin: 2px 3px 0 0; font-size: 11px; color: var(--mist); }
+  .statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; }
+  .stat { background: var(--navy); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; }
+  .stat .n { font-size: 24px; font-weight: 600; letter-spacing: -1px; }
+  .stat .l { font-size: 11px; color: var(--ash); margin-top: 2px; }
+  .report { white-space: pre-wrap; font-family: var(--mono); font-size: 11px; color: var(--mist); background: var(--midnight); border: 1px solid var(--hair-2); border-radius: 12px; padding: 16px; max-height: 460px; overflow: auto; margin-top: 14px; }
+  .ghost { background: var(--charcoal); border: 1px solid var(--hair); color: var(--mist); font-size: 13px; padding: 8px 14px; border-radius: 9px; }
+  .ghost:hover { color: var(--white); }
+  .teach { display: flex; flex-wrap: wrap; gap: 8px; }
+  .teach input { background: var(--charcoal); border: 1px solid var(--hair); color: var(--white); border-radius: 9px; padding: 8px 10px; font: inherit; font-size: 13px; }
+  audio { height: 34px; }
+
+  /* ---------- memory: state inspector ---------- */
+  #view-memory code { font-family: var(--mono); font-size: 0.85em; color: var(--sky); background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 4px; }
+
+  .insp-head { padding: 40px 0 6px; }
+  .insp-head h1 { margin: 0; font-size: 33px; font-weight: 600; letter-spacing: -1.3px; line-height: 1.1; }
+  .insp-head p { margin: 14px 0 0; max-width: 68ch; font-size: 14px; color: var(--mist); line-height: 1.7; }
+
+  .statebar { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 24px; font-family: var(--mono); font-size: 12px; }
+  .statebar .cell { display: flex; gap: 8px; align-items: baseline; background: var(--obsidian); border: 1px solid var(--hair-2); border-radius: 8px; padding: 6px 12px; }
+  .statebar .cell span { color: var(--fog); }
+  .statebar .cell b { color: var(--mist); font-weight: 600; }
+  .statebar .cell.hot b { color: var(--sky); }
+
+  .insp-sec { padding: 32px 0; border-top: 1px solid var(--hair-2); }
+  .insp-sec-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .insp-sec-head h2 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.3px; }
+  .insp-sec-head .count { font-family: var(--mono); font-size: 12px; color: var(--ash); }
+  .insp-sec-head .hint { font-size: 12px; color: var(--fog); margin-left: auto; }
+  .insp-sec .foot { margin: 16px 0 0; font-size: 12px; color: var(--fog); line-height: 1.6; }
+
+  .tbl-wrap { overflow-x: auto; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th { text-align: left; font-size: 11px; font-weight: 600; color: var(--ash); padding: 8px 14px 8px 0; border-bottom: 1px solid var(--hair); white-space: nowrap; }
+  .tbl td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--hair-2); color: var(--mist); vertical-align: top; }
+  .tbl td.m, .tbl th.m { font-family: var(--mono); }
+  .tbl tr:last-child td { border-bottom: 0; }
+  .tbl .pos-w { color: var(--mint); }
+  .tbl .neg-w { color: var(--wrong); }
+
+  .meter { position: relative; height: 7px; border-radius: 4px; background: rgba(255,255,255,0.10); overflow: hidden; }
+  .meter > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: linear-gradient(90deg, #2f6bd8, #8f7bd6); transition: width .4s ease; }
+
+  .pill-s { display: inline-block; font-size: 11px; font-weight: 600; text-transform: capitalize; padding: 3px 9px; border-radius: 5px; }
+  .pill-s.active { background: rgba(39,201,63,0.16); color: var(--mint); }
+  .pill-s.proposed { background: rgba(255,183,100,0.16); color: var(--amber); }
+  .pill-s.contested { background: rgba(255,92,92,0.16); color: var(--wrong); }
+  .pill-s.inactive { background: rgba(255,255,255,0.07); color: var(--ash); }
+
+  .mem-list { display: flex; flex-direction: column; border-top: 1px solid var(--hair-2); }
+  .mem-card { border-bottom: 1px solid var(--hair-2); }
+  .mem-row { display: grid; grid-template-columns: minmax(200px, 1fr) 104px clamp(170px, 20vw, 300px) minmax(230px, 1.1fr) 18px; align-items: center; gap: 22px; padding: 16px 4px; cursor: pointer; transition: background .14s ease; }
+  .mem-row:hover, .mem-card.open .mem-row { background: rgba(255,255,255,0.025); }
+  .mem-name { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--white); }
+  .mem-name small { display: block; font-family: var(--font); font-size: 12px; font-weight: 400; color: var(--fog); margin-top: 4px; }
+  .mem-conf { display: flex; flex-direction: column; gap: 6px; }
+  .mem-conf .v { font-family: var(--mono); font-size: 11px; color: var(--ash); }
+  .mem-tally { font-family: var(--mono); font-size: 11px; color: var(--fog); line-height: 1.5; }
+  .mem-tally b { color: var(--mist); font-weight: 600; }
+  .chev { justify-self: end; color: var(--fog); font-size: 12px; transition: transform .16s ease; }
+  .mem-card.open .chev { transform: rotate(90deg); color: var(--mist); }
+
+  .mem-body { padding: 6px 4px 28px; display: grid; gap: 26px; animation: memslide .16s ease; }
+  @keyframes memslide { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .blk-title { font-size: 13px; font-weight: 700; color: var(--pearl); margin-bottom: 12px; }
+  .blk-title .q { color: var(--fog); font-weight: 400; font-size: 12px; margin-left: 10px; }
+  .ctx-line { font-size: 13px; color: var(--mist); margin: 6px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .ctx-line .k { color: var(--fog); font-family: var(--mono); font-size: 11px; }
+  .chipset { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+  .chip2 { font-family: var(--mono); font-size: 12px; color: var(--mist); background: rgba(255,255,255,0.05); border: 1px solid var(--hair-2); border-radius: 6px; padding: 2px 8px; }
+  .dec-sum { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .dec-sum .d { font-family: var(--mono); font-size: 12px; padding: 4px 10px; border-radius: 6px; background: rgba(255,255,255,0.05); color: var(--mist); }
+  .dec-sum .d.rep { color: #7ec2ff; } .dec-sum .d.def { color: var(--amber); } .dec-sum .d.keep { color: var(--ash); }
+  .mem-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .btn-danger { background: rgba(255,92,92,0.10); border: 1px solid rgba(255,92,92,0.4); color: #ff9090; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; }
+  .btn-danger:hover { background: rgba(255,92,92,0.18); }
+  .empty-note { font-size: 12px; color: var(--fog); font-style: italic; }
+
+  .obs-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; max-width: 900px; }
+  .obs-card { background: var(--obsidian); border: 1px solid var(--hair); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 11px; }
+  .obs-card .obs-t { font-size: 13px; font-weight: 700; color: var(--white); }
+  .obs-card label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 500; color: var(--ash); }
+  .obs-card input { font: inherit; font-size: 14px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--white); background: var(--charcoal); border: 1px solid var(--hair); border-radius: 8px; padding: 9px 11px; outline: none; }
+  .obs-card input:focus { border-color: rgba(255,255,255,0.25); }
+  .obs-card input::placeholder { color: var(--fog); }
+  .obs-card button { align-self: flex-start; margin-top: 4px; background: var(--white); color: #000; border: 0; font-size: 13px; font-weight: 700; padding: 9px 20px; border-radius: 9px; }
+  .obs-card button:hover { background: #e9e9e9; }
+
+  @media (max-width: 720px) {
+    .insp-head h1 { font-size: 27px; letter-spacing: -1px; }
+    .mem-row { grid-template-columns: 1fr auto 18px; gap: 14px; }
+    .mem-row .mem-conf, .mem-row .mem-tally { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <nav class="pill">
+    <span class="brand"><span class="dot"></span>kivi</span>
+    <button class="navlink active" data-view="chat">Chat</button>
+    <button class="navlink" data-view="memory">Memory</button>
+    <button class="navlink" data-view="eval">Evaluation</button>
+    <button class="nav-reset" id="resetBtn">Reset</button>
+  </nav>
+</div>
+
+<main>
+  <!-- ================= CHAT ================= -->
+  <section class="view on" id="view-chat">
+    <div class="hero">
+      <div class="bloom"></div>
+      <h1>The words Kivi keeps</h1>
+      <p>Speak or type. Kivi transcribes, formats, then rewrites the words that belong to you. Wrong? Click it, type the fix &mdash; it remembers.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <span class="label">transcription</span>
+        <span class="hint">&#8984;&#9166; to send</span>
+      </div>
+      <div class="stream" id="stream">
+        <div class="empty" id="empty">
+          Nothing yet. Try one of these &mdash; then click a highlighted word to correct it.
+          <div class="chips" id="starters">
+            <button class="chip" data-s="open the kiwi service">open the kiwi service</button>
+            <button class="chip" data-s="I ate a kiwi today">I ate a kiwi today</button>
+            <button class="chip" data-s="ask civi to restart the service">ask civi to restart the service</button>
+            <button class="chip" data-s="we should ship devy this sprint">we should ship devy this sprint</button>
+            <button class="chip" data-s="I told sibi about the meeting">I told sibi about the meeting</button>
+          </div>
+        </div>
+      </div>
+      <div class="toast" id="toast"></div>
+      <div class="composer">
+        <button class="mic" id="micBtn" title="record">&#9679;</button>
+        <textarea id="input" rows="1" placeholder="Say something to Kivi&hellip;"></textarea>
+        <button class="send" id="sendBtn">Send</button>
+      </div>
+      <audio id="playback" controls hidden style="margin:0 20px 16px"></audio>
+    </div>
+  </section>
+
+  <!-- ================= MEMORY ================= -->
+  <section class="view" id="view-memory">
+    <div class="insp-head">
+      <h1>The memory state, in full</h1>
+      <p>Everything here is read straight from <code>database/kivi.db</code>. Open an entry to see the evidence its confidence is computed from, the append-only log of what the user actually did, the context that scopes it, and every decision that has weighed it. The row below tracks how the database grows across a reset cycle.</p>
+      <div class="statebar" id="stateBar"></div>
+    </div>
+
+    <div class="insp-sec">
+      <div class="insp-sec-head">
+        <h2>Accent profile</h2>
+        <span class="count" id="accentCount"></span>
+        <span class="hint">the sound substitutions this user&rsquo;s recogniser makes, from <code>sound_pattern</code></span>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl" id="accentTbl">
+          <thead><tr><th>Rule</th><th>Position</th><th>Sightings</th><th>Weight</th><th>Origin</th><th>First &rarr; last seen</th><th>State</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="foot" id="accentNote"></p>
+    </div>
+
+    <div class="insp-sec">
+      <div class="insp-sec-head">
+        <h2>Memory entries</h2>
+        <span class="count" id="memCount"></span>
+        <span class="hint">tables <code>memory</code> / <code>alias</code> / <code>evidence</code> / <code>observation</code></span>
+      </div>
+      <div class="mem-list" id="memList"></div>
+    </div>
+
+    <div class="insp-sec">
+      <div class="insp-sec-head">
+        <h2>Provide an observation</h2>
+        <span class="hint">the same learning path the Chat corrections use</span>
+      </div>
+      <div class="obs-forms">
+        <div class="obs-card">
+          <div class="obs-t">Teach a term</div>
+          <label>Canonical form<input id="tCanon" placeholder="e.g. Kivi" /></label>
+          <label>Entity type<input id="tType" value="term" /></label>
+          <label>Positive context keywords<input id="tKw" placeholder="comma-separated (optional)" /></label>
+          <button id="teachBtn">Teach</button>
+        </div>
+        <div class="obs-card">
+          <div class="obs-t">Record a correction</div>
+          <label>What Kivi should produce<input id="cChosen" placeholder="e.g. Kivi" /></label>
+          <label>What was written instead<input id="cRejected" placeholder="e.g. kiwi" /></label>
+          <label>Raw ASR line (optional)<input id="cAsr" placeholder="open the kiwi service" /></label>
+          <button id="corrBtn">Record</button>
+        </div>
+      </div>
+      <p class="foot" id="obsNote"></p>
+    </div>
+  </section>
+
+  <!-- ================= EVAL ================= -->
+  <section class="view" id="view-eval">
+    <div class="section" style="margin-top:32px"></div>
+    <div class="feature">
+      <h2>Evaluation</h2>
+      <div class="sub">Committed results from <span class="mono">python manage.py eval</span> &mdash; deterministic: echo ASR + rule formatter + fixed config.</div>
+      <button class="ghost" id="loadEval">Load committed results</button>
+      <div class="statgrid" id="evalStats" style="margin-top:16px"></div>
+      <pre class="report" id="evalReport" hidden></pre>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => (s || '').toLowerCase().replace(/[^a-z0-9']/g, '');
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, opts);
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail || body.message || (r.status + ' ' + r.statusText));
+  return body;
+}
+
+/* ---------------- view switching ---------------- */
+document.querySelectorAll('.navlink').forEach(b => b.onclick = () => setView(b.dataset.view));
+function setView(v) {
+  document.querySelectorAll('.navlink').forEach(x => x.classList.toggle('active', x.dataset.view === v));
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'view-' + v));
+  if (v === 'memory') loadMemory();
+}
+
+/* ---------------- chat ---------------- */
+const stream = $('#stream');
+const turns = [];  // { utterance, result, el }
+
+$('#sendBtn').onclick = () => submit($('#input').value);
+$('#input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey || !e.shiftKey)) { e.preventDefault(); submit($('#input').value); }
+});
+$('#input').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; });
+document.querySelectorAll('#starters .chip').forEach(c => c.onclick = () => submit(c.dataset.s));
+
+async function submit(text) {
+  text = (text || '').trim();
+  if (!text) return;
+  $('#input').value = ''; $('#input').style.height = 'auto';
+  $('#empty') && $('#empty').remove();
+  $('#sendBtn').disabled = true;
+
+  const turn = { utterance: text, result: null, el: document.createElement('div') };
+  turn.el.className = 'turn';
+  turn.el.innerHTML = `<div class="user">${esc(text)}</div><div class="bot"><div class="meta">Kivi is listening&hellip;</div></div>`;
+  stream.append(turn.el);
+  turns.push(turn);
+  stream.scrollTop = stream.scrollHeight;
+
+  try {
+    const r = await api('/api/process', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+    turn.result = r;
+    renderTurn(turn);
+  } catch (e) {
+    turn.el.querySelector('.bot').innerHTML = `<div class="meta" style="color:var(--wrong)">${esc(e.message)}</div>`;
+  } finally {
+    $('#sendBtn').disabled = false;
+    stream.scrollTop = stream.scrollHeight;
+  }
+}
+
+function renderTurn(turn) {
+  const r = turn.result;
+  const bot = turn.el.querySelector('.bot');
+  const m = r.metrics || {};
+  bot.innerHTML = `
+    <div class="meta">
+      <span class="k">memory-aware</span>
+      <span>${m.latency_ms ?? '-'} ms</span>
+      <span>model calls ${m.model_calls ?? 0}</span>
+      <span>$${m.est_cost_usd ?? 0}</span>
+      <button data-t="levels">levels</button>
+      <button data-t="why">why</button>
+    </div>
+    <div class="levels" hidden>
+      <div><span class="tag">1 &middot; asr&nbsp;&nbsp;</span> ${esc(r.asr_text)}</div>
+      <div><span class="tag">2 &middot; fmt&nbsp;&nbsp;</span> ${esc(r.formatted_text)}</div>
+    </div>
+    <div class="result"></div>
+    <div class="why"></div>`;
+  bot.querySelector('.result').innerHTML = wordify(r);
+  bot.querySelector('[data-t="levels"]').onclick = () => {
+    const l = bot.querySelector('.levels'); l.hidden = !l.hidden;
+  };
+  bot.querySelector('[data-t="why"]').onclick = () => {
+    const w = bot.querySelector('.why');
+    if (!w.classList.contains('on')) w.innerHTML = whyHtml(r);
+    w.classList.toggle('on');
+  };
+  bindWords(bot.querySelector('.result'), turn);
+}
+
+/* build the memory-aware line with clickable, classed word spans */
+function wordify(r) {
+  const bySurface = new Map();
+  (r.decisions || []).forEach(d => {
+    const key = norm(d.replacement || d.span);
+    if (!bySurface.has(key)) bySurface.set(key, []);
+    bySurface.get(key).push(d);
+  });
+  const used = new Set();
+  let out = '';
+  const parts = (r.memory_aware_text || '').split(/([A-Za-z][A-Za-z'’-]*)/);
+  parts.forEach((chunk, i) => {
+    if (i % 2 === 0) { out += esc(chunk); return; }
+    const key = norm(chunk);
+    const list = bySurface.get(key) || [];
+    const d = list.find(x => !used.has(x));
+    let cls = 'w', title = 'click to correct';
+    if (d) {
+      used.add(d);
+      if (d.action === 'REPLACE') { cls += ' rep'; title = `${d.asr_original || d.span} → ${d.replacement} · REPLACE`; }
+      else if (d.action === 'DEFER') { cls += ' def'; title = `suggestion: ${d.matched_memory} · DEFER`; }
+      else if (d.matched_memory) { cls += ' kc'; title = `kept · ${d.reason_code}`; }
+    }
+    out += `<span class="${cls}" data-w="${esc(chunk)}"${d ? ` data-did="${d.decision_id ?? ''}"` : ''} title="${esc(title)}">${esc(chunk)}</span>`;
+  });
+  return out;
+}
+
+function whyHtml(r) {
+  const ds = r.decisions || [];
+  if (!ds.length) return `<div class="row">No memory matched any word &mdash; nothing was changed.</div>`;
+  return ds.map(d => {
+    const p = d.personal || {};
+    let acc = '';
+    if (p.method_personal && (p.rules || []).length) acc = ` <span class="accent">&#9672; accent rule ${esc(p.rules.join(', '))}</span>`;
+    else if (p.s_personal > 0) acc = ` <span class="accent">&#9672; ASR misheard this ×${p.misheard_count}</span>`;
+    return `<div class="row"><span class="b ${d.action}">${d.action}</span><b>${esc(d.span)}</b>${d.replacement ? ' → ' + esc(d.replacement) : ''} &mdash; ${esc(d.reason)}${acc}</div>`;
+  }).join('');
+}
+
+/* ---------------- inline correction ---------------- */
+function bindWords(root, turn) {
+  root.querySelectorAll('.w').forEach(span => {
+    span.onclick = e => {
+      e.stopPropagation();
+      closeMenus();
+      const d = decisionFor(turn.result, span);
+      if (d && d.action === 'DEFER' && d.matched_memory) openMenu(span, turn, d);
+      else editWord(span, turn, d);
+    };
+  });
+}
+function decisionFor(r, span) {
+  const did = span.dataset.did;
+  const w = norm(span.dataset.w);
+  return (r.decisions || []).find(d =>
+    (did && String(d.decision_id) === did) ||
+    norm(d.replacement || d.span) === w) || null;
+}
+function closeMenus() { document.querySelectorAll('.wmenu').forEach(m => m.remove()); }
+document.addEventListener('click', closeMenus);
+
+function openMenu(span, turn, d) {
+  const m = document.createElement('div');
+  m.className = 'wmenu';
+  m.innerHTML = `<button class="accept">Accept &rarr; ${esc(d.matched_memory)}</button><button class="fix">Fix&hellip;</button>`;
+  document.body.append(m);
+  const r = span.getBoundingClientRect();
+  m.style.top = (window.scrollY + r.bottom + 6) + 'px';
+  m.style.left = (window.scrollX + r.left) + 'px';
+  m.querySelector('.accept').onclick = ev => { ev.stopPropagation(); closeMenus(); acceptSuggestion(turn, d); };
+  m.querySelector('.fix').onclick = ev => { ev.stopPropagation(); closeMenus(); editWord(span, turn, d); };
+}
+
+function editWord(span, turn, d) {
+  const original = span.dataset.w;
+  const inp = document.createElement('input');
+  inp.className = 'wfix'; inp.value = original; inp.size = Math.max(2, original.length + 1);
+  inp.oninput = () => inp.size = Math.max(2, inp.value.length + 1);
+  span.replaceWith(inp);
+  inp.focus(); inp.select();
+  let done = false;
+  const cancel = () => { if (done) return; done = true; inp.replaceWith(span); };
+  inp.onclick = ev => ev.stopPropagation();
+  inp.onkeydown = ev => {
+    ev.stopPropagation();
+    if (ev.key === 'Escape') { ev.preventDefault(); cancel(); }
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      const val = inp.value.trim();
+      done = true;
+      inp.replaceWith(span);
+      if (val && norm(val) !== norm(original)) applyFix(turn, d, original, val);
+    }
+  };
+  inp.onblur = cancel;
+}
+
+async function applyFix(turn, d, wrongWord, rightWord) {
+  const r = turn.result;
+  const revertingReplace = d && d.action === 'REPLACE' &&
+    norm(rightWord) === norm(d.asr_original || d.span);
+  const body = revertingReplace
+    ? { type: 'rejection', rejected_form: d.matched_memory, chosen_form: rightWord }
+    : { type: 'explicit_correction', chosen_form: rightWord, rejected_form: wrongWord };
+  body.formatted_text = r.formatted_text;
+  body.raw_asr_text = r.asr_text;
+  if (d && d.decision_id) body.decision_id = d.decision_id;
+  await observeAndReprocess(turn, body, rightWord, wrongWord);
+}
+async function acceptSuggestion(turn, d) {
+  const r = turn.result;
+  const body = {
+    type: 'confirmation', chosen_form: d.matched_memory,
+    rejected_form: d.asr_original || d.span,
+    formatted_text: r.formatted_text, raw_asr_text: r.asr_text
+  };
+  if (d.decision_id) body.decision_id = d.decision_id;
+  await observeAndReprocess(turn, body, d.matched_memory, d.span);
+}
+
+async function observeAndReprocess(turn, body, highlightWord, prevWord) {
+  toast('');
+  try {
+    await api('/api/observe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  } catch (e) { toast('could not record correction: ' + e.message); return; }
+  try {
+    const r = await api('/api/process', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: turn.utterance }) });
+    turn.result = r;
+    renderTurn(turn);
+    flashWord(turn.el, highlightWord || prevWord);
+  } catch (e) { toast('re-process failed: ' + e.message); }
+  if ($('#view-memory').classList.contains('on')) loadMemory();
+}
+
+function flashWord(turnEl, word) {
+  const w = norm(word);
+  turnEl.querySelectorAll('.result .w').forEach(s => {
+    if (norm(s.dataset.w) === w) {
+      s.classList.add('flash');
+      setTimeout(() => s.classList.remove('flash'), 1300);
+    }
+  });
+}
+function toast(msg) { $('#toast').textContent = msg || ''; }
+
+/* ---------------- recording ---------------- */
+let rec, chunks = [];
+$('#micBtn').onclick = async () => {
+  if (rec && rec.state === 'recording') { rec.stop(); return; }
+  try {
+    const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    rec = new MediaRecorder(mediaStream); chunks = [];
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = async () => {
+      mediaStream.getTracks().forEach(t => t.stop());
+      $('#micBtn').classList.remove('rec'); $('#micBtn').innerHTML = '&#9679;';
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      $('#playback').src = URL.createObjectURL(blob); $('#playback').hidden = false;
+      const fd = new FormData(); fd.append('audio', blob, 'rec.webm');
+      toast('transcribing…');
+      try {
+        const r = await api('/api/process-audio', { method: 'POST', body: fd });
+        toast('');
+        const turn = { utterance: r.asr_text, result: r, el: document.createElement('div') };
+        turn.el.className = 'turn';
+        turn.el.innerHTML = `<div class="user">${esc(r.asr_text)}</div><div class="bot"></div>`;
+        $('#empty') && $('#empty').remove();
+        stream.append(turn.el);
+        turns.push(turn); renderTurn(turn);
+        stream.scrollTop = stream.scrollHeight;
+      } catch (e) {
+        toast(/real ASR|409/.test(e.message)
+          ? 'Voice needs a Whisper provider (see RUN.md §8). Type instead — echo ASR handles typed text.'
+          : e.message);
+      }
+    };
+    rec.start();
+    $('#micBtn').classList.add('rec'); $('#micBtn').innerHTML = '&#9632;';
+    setTimeout(() => { if (rec && rec.state === 'recording') rec.stop(); }, 60000);
+  } catch (e) { toast('mic unavailable — type instead'); }
+};
+
+/* ---------------- memory: state inspector ---------------- */
+const _ts = s => { if (!s) return '—'; const d = new Date(s); return isNaN(d) ? String(s) : d.toISOString().slice(5, 16).replace('T', ' '); };
+const _n3 = v => (v == null || v === '' ? '—' : Number(v).toFixed(3));
+
+async function loadMemory() {
+  // database growth
+  try {
+    const h = await api('/api/health');
+    const c = h.counts || {};
+    const order = ['memory', 'alias', 'observation', 'evidence', 'sound_pattern', 'request', 'decision'];
+    $('#stateBar').innerHTML = order.map(k =>
+      `<div class="cell${k === 'memory' ? ' hot' : ''}"><span>${k}</span><b>${c[k] ?? '—'}</b></div>`).join('');
+  } catch (e) { $('#stateBar').innerHTML = ''; }
+
+  // accent profile
+  try {
+    const p = await api('/api/phonetic-profile');
+    const tb = $('#accentTbl tbody'); tb.innerHTML = '';
+    if (!p.rules.length) {
+      tb.innerHTML = `<tr><td colspan="7" class="empty-note">No rules yet. Correct a mishearing in Chat &mdash; Kivi aligns what you typed against what the recogniser produced and stores the difference here.</td></tr>`;
+    }
+    p.rules.forEach(x => {
+      const w = Math.max(0, Math.min(1, Number(x.weight) || 0));
+      tb.insertAdjacentHTML('beforeend', `<tr>
+        <td class="m" style="color:var(--white);font-weight:600">${esc(x.src || '∅')} &rarr; ${esc(x.dst || '∅')}</td>
+        <td>${esc(x.position)}</td>
+        <td class="m">${x.observations} of ${p.min_observations_to_activate}</td>
+        <td><div class="meter" style="width:120px"><i style="width:${Math.round(w * 100)}%"></i></div>
+            <span class="m" style="color:var(--fog);font-size:11px">${esc(String(x.weight))}</span></td>
+        <td>${esc(x.origin)}</td>
+        <td class="m" style="font-size:11px">${_ts(x.first_seen)} &rarr; ${_ts(x.last_seen)}</td>
+        <td>${x.active
+          ? '<span class="pos-w" style="font-weight:600">firing</span>'
+          : '<span style="color:var(--fog)">below threshold</span>'}</td>
+      </tr>`);
+    });
+    $('#accentCount').textContent = p.count ? `${p.active_count} of ${p.count} firing` : '';
+    $('#accentNote').textContent = p.note || '';
+  } catch (e) {}
+
+  // decisions grouped by the memory they considered
+  const decByMem = new Map();
+  try {
+    const d = await api('/api/decisions');
+    (d.items || []).forEach(x => {
+      const k = x.candidate_memory_id;
+      if (k == null) return;
+      if (!decByMem.has(k)) decByMem.set(k, []);
+      decByMem.get(k).push(x);
+    });
+  } catch (e) {}
+
+  // memory entries — full detail is fetched up front; the seed set is small
+  const r = await api('/api/memory');
+  const list = $('#memList'); list.innerHTML = '';
+  $('#memCount').textContent = `${r.items.length} ${r.items.length === 1 ? 'entry' : 'entries'}`;
+  const full = await Promise.all(r.items.map(it => api('/api/memory/' + it.id).catch(() => null)));
+
+  r.items.forEach((m, i) => {
+    const d = full[i];
+    const decs = decByMem.get(m.id) || [];
+    const w = Math.round((m.confidence || 0) * 100);
+    const nEv = d ? d.evidence.length : '—';
+    const nObs = d ? d.observations.length : '—';
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.innerHTML = `
+      <div class="mem-row">
+        <div class="mem-name">${esc(m.canonical_form)}<small>${esc(m.entity_type)}</small></div>
+        <div><span class="pill-s ${esc(m.status)}">${esc(m.status)}</span></div>
+        <div class="mem-conf">
+          <div class="meter"><i style="width:${w}%"></i></div>
+          <span class="v">confidence ${_n3(m.confidence)}</span>
+        </div>
+        <div class="mem-tally"><b>${m.aliases.length}</b> aliases &nbsp;&nbsp; <b>${nEv}</b> evidence &nbsp;&nbsp; <b>${nObs}</b> observations &nbsp;&nbsp; <b>${decs.length}</b> decisions</div>
+        <span class="chev">&#9656;</span>
+      </div>
+      <div class="mem-body" hidden></div>`;
+    const row = card.querySelector('.mem-row');
+    const body = card.querySelector('.mem-body');
+    row.onclick = () => {
+      const open = body.hidden;
+      card.classList.toggle('open', open);
+      body.hidden = !open;
+      if (open && !body.dataset.filled) {
+        if (d) { renderMemBody(body, d, decs); body.dataset.filled = '1'; }
+        else body.innerHTML = `<div class="empty-note">Detail for this entry could not be loaded.</div>`;
+      }
+    };
+    list.append(card);
+  });
+}
+
+function renderMemBody(el, m, decs) {
+  const evTable = m.evidence.length ? `
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Kind</th><th>Weight</th><th>Scope</th><th>Recorded</th></tr></thead>
+      <tbody>${m.evidence.map(e => `<tr>
+        <td class="m">${esc(e.kind)}</td>
+        <td class="m ${e.weight >= 0 ? 'pos-w' : 'neg-w'}">${e.weight >= 0 ? '+' : ''}${e.weight}</td>
+        <td class="m">${esc(e.context_key || 'global')}</td>
+        <td class="m" style="font-size:11px">${_ts(e.created_at)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`
+    : `<div class="empty-note">No evidence rows. Confidence stays at its starting value until an observation adds one.</div>`;
+
+  const alTable = `
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Surface form</th><th>Normalized</th><th>Origin</th><th>Times seen</th><th>Phonetic key</th><th>Last seen</th></tr></thead>
+      <tbody>${m.aliases.map(a => `<tr>
+        <td class="m" style="color:var(--white)">${esc(a.surface_form)}</td>
+        <td class="m">${esc(a.normalized_form)}</td>
+        <td>${esc(a.origin)}</td>
+        <td class="m">${a.observation_count}</td>
+        <td class="m">${esc(a.phonetic_key || '—')}</td>
+        <td class="m" style="font-size:11px">${_ts(a.last_seen)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+
+  const obsTable = m.observations.length ? `
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Recorded</th><th>Type</th><th>Kept</th><th>Replaced</th><th>Utterance</th></tr></thead>
+      <tbody>${m.observations.map(o => `<tr>
+        <td class="m" style="font-size:11px">${_ts(o.ts)}</td>
+        <td class="m">${esc(o.type)}</td>
+        <td class="m" style="color:var(--white)">${esc(o.chosen_form || '—')}</td>
+        <td class="m" style="color:var(--fog)">${esc(o.rejected_form || '—')}</td>
+        <td style="color:var(--fog)">${esc(o.target_span || o.raw_asr_text || '—')}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`
+    : `<div class="empty-note">No observations are linked to this entry.</div>`;
+
+  const pc = m.positive_contexts || {}, nc = m.negative_contexts || {};
+  const kwLine = (label, xs) => `<div class="ctx-line"><span class="k">${label}</span>${
+    (xs && xs.length) ? `<span class="chipset">${xs.map(k => `<span class="chip2">${esc(k)}</span>`).join('')}</span>`
+                      : '<span class="empty-note">none</span>'}</div>`;
+
+  const tally = decs.reduce((a, x) => (a[x.action] = (a[x.action] || 0) + 1, a), {});
+  const decBlock = decs.length ? `
+    <div class="dec-sum">
+      <span class="d rep">${tally.REPLACE || 0} replaced</span>
+      <span class="d def">${tally.DEFER || 0} deferred</span>
+      <span class="d keep">${tally.KEEP || 0} kept as written</span>
+    </div>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Outcome</th><th>Because</th><th>Combined</th><th>Surface</th><th>Context</th><th>Confidence</th><th>Flags</th></tr></thead>
+      <tbody>${decs.slice(0, 10).map(x => `<tr>
+        <td class="m" style="color:var(--white)">${esc(x.action)}</td>
+        <td>${esc(x.reason_code || '')}${x.reason_text ? `<div style="color:var(--fog);font-size:11px;margin-top:2px">${esc(x.reason_text)}</div>` : ''}</td>
+        <td class="m">${_n3(x.combined_score)}</td>
+        <td class="m">${_n3(x.s_surf)}</td>
+        <td class="m">${_n3(x.s_ctx)}</td>
+        <td class="m">${_n3(x.mem_confidence)}</td>
+        <td class="m" style="font-size:11px">${[x.ambiguity_flag ? 'ambiguous' : '', x.contradiction_flag ? 'contradiction' : ''].filter(Boolean).join(', ') || '—'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`
+    : `<div class="empty-note">This entry has not been a candidate in any recorded decision.</div>`;
+
+  el.innerHTML = `
+    <div>
+      <div class="blk-title">Confidence<span class="q">derived only from these evidence rows</span></div>
+      ${evTable}
+    </div>
+    <div>
+      <div class="blk-title">Aliases<span class="q">surface forms that resolve to this entry</span></div>
+      ${alTable}
+    </div>
+    <div>
+      <div class="blk-title">Context</div>
+      ${kwLine('appears with', pc.keywords)}
+      ${kwLine('in domains', pc.domains)}
+      ${kwLine('kept away from', nc.keywords)}
+      ${kwLine('not in domains', nc.domains)}
+    </div>
+    <div>
+      <div class="blk-title">Observation log<span class="q">append-only; the raw record of what the user did</span></div>
+      ${obsTable}
+    </div>
+    <div>
+      <div class="blk-title">Decisions that considered this entry</div>
+      ${decBlock}
+    </div>
+    <div>
+      <div class="blk-title">Row</div>
+      <div class="ctx-line"><span class="k">source</span><span>${esc(m.source || '—')}</span></div>
+      <div class="ctx-line"><span class="k">notes</span><span>${esc(m.notes || '—')}</span></div>
+      <div class="mem-actions">
+        <button class="btn-danger" type="button">Deactivate this entry</button>
+        <span class="empty-note">sets status to inactive so retrieval skips it; a later observation can bring it back</span>
+      </div>
+    </div>`;
+
+  const btn = el.querySelector('.btn-danger');
+  btn.onclick = async ev => {
+    ev.stopPropagation();
+    if (btn.dataset.armed !== '1') { btn.dataset.armed = '1'; btn.textContent = 'Confirm deactivation'; return; }
+    btn.disabled = true; btn.textContent = 'Deactivating…';
+    try { await api('/api/memory/' + m.id, { method: 'DELETE' }); await loadMemory(); }
+    catch (e) { btn.disabled = false; btn.textContent = e.message; }
+  };
+}
+
+$('#teachBtn').onclick = async () => {
+  const canonical_form = $('#tCanon').value.trim();
+  if (!canonical_form) { $('#obsNote').textContent = 'Enter a canonical form to teach.'; return; }
+  const body = {
+    canonical_form, entity_type: $('#tType').value.trim() || 'term',
+    positive_keywords: ($('#tKw').value || '').split(',').map(s => s.trim()).filter(Boolean),
+  };
+  try {
+    await api('/api/memory', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    $('#tCanon').value = ''; $('#tKw').value = '';
+    $('#obsNote').textContent = `Taught “${canonical_form}”. It appears below as a proposed entry until more evidence arrives.`;
+    loadMemory();
+  } catch (e) { $('#obsNote').textContent = e.message; }
+};
+
+$('#corrBtn').onclick = async () => {
+  const chosen = $('#cChosen').value.trim(), rejected = $('#cRejected').value.trim();
+  if (!chosen || !rejected) { $('#obsNote').textContent = 'A correction needs both the wanted form and what was written instead.'; return; }
+  const body = { type: 'explicit_correction', chosen_form: chosen, rejected_form: rejected };
+  const asr = $('#cAsr').value.trim(); if (asr) body.raw_asr_text = asr;
+  try {
+    await api('/api/observe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    $('#cChosen').value = ''; $('#cRejected').value = ''; $('#cAsr').value = '';
+    $('#obsNote').textContent = `Recorded: “${rejected}” should have been “${chosen}”.`;
+    loadMemory();
+  } catch (e) { $('#obsNote').textContent = e.message; }
+};
+
+/* ---------------- eval view ---------------- */
+$('#loadEval').onclick = async () => {
+  try {
+    const r = await api('/api/evaluation/results');
+    const h = r.summary.headline, pp = r.summary.personal_phonetics || {};
+    const cards = [
+      ['pass rate', (h.pass_rate * 100).toFixed(0) + '%'],
+      ['cases', h.passed + ' / ' + h.cases],
+      ['non-intervention', (h.non_intervention_accuracy * 100).toFixed(0) + '%'],
+      ['over-intervention', h.over_intervention_count],
+      ['memory stability', h.memory_stability_pass],
+      ['idempotency', h.idempotency_pass],
+      ['personal phonetics', (pp.passed ?? '-') + ' / ' + (pp.cases ?? '-')],
+      ['model calls', r.summary.model_usage.total_model_calls],
+    ];
+    $('#evalStats').innerHTML = cards.map(([l, n]) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+    $('#evalReport').textContent = r.report_md; $('#evalReport').hidden = false;
+  } catch (e) { $('#evalStats').innerHTML = `<div class="sub">${esc(e.message)} &mdash; run <span class="mono">python manage.py eval</span></div>`; }
+};
+
+/* ---------------- reset ---------------- */
+$('#resetBtn').onclick = async () => {
+  await api('/api/admin/reset', { method: 'POST' });
+  turns.length = 0;
+  stream.innerHTML = `<div class="empty">Reset to seed. Start again above.</div>`;
+  toast('');
+  if ($('#view-memory').classList.contains('on')) loadMemory();
+};
+</script>
+</body>
+</html>

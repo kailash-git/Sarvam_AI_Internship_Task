@@ -1,0 +1,39 @@
+{
+  "id": "phonetic-01",
+  "category": "phonetic_match",
+  "description": "phonetic cousin, software context",
+  "input": "restart the kibi process",
+  "expected_output": "Restart the Kivi process.",
+  "actual_output": "Restart the Kivi process.",
+  "expected_action": "REPLACE",
+  "actual_action": "REPLACE",
+  "reason": "Replaced 'kibi' with 'Kivi': phonetic match (surface 0.85) to an active memory (confidence 0.84); context score +0.65. Combined 0.71.",
+  "scores": {
+    "s_surf": 0.85,
+    "s_ctx_pos": 0.65,
+    "s_ctx_neg": 0.0,
+    "s_ctx": 0.65,
+    "confidence": 0.841,
+    "combined": 0.714
+  },
+  "asr_text": "restart the kibi process",
+  "formatted_text": "Restart the kibi process.",
+  "memory_aware_text": "Restart the Kivi process.",
+  "output_ok": true,
+  "action_ok": true,
+  "stability_ok": null,
+  "idempotency_ok": null,
+  "reason_ok": null,
+  "expect_reason_contains": null,
+  "personal": {
+    "method_personal": false,
+    "s_personal": 0.0,
+    "misheard_count": 0,
+    "rules": [],
+    "note": null
+  },
+  "passed": true,
+  "latency_ms": 9.18,
+  "model_calls": 0,
+  "est_cost_usd": 0.0
+}

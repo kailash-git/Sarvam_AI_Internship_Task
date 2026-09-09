@@ -1,0 +1,1822 @@
+{
+  "generated_at": "2026-09-05T15:18:08Z",
+  "llm_mode": "mock",
+  "dataset": "eval/dataset/cases.yaml",
+  "db_bytes": 81920,
+  "metrics": {
+    "scored_cases": 32,
+    "total_cases": 34,
+    "known_limitation_cases": 2,
+    "passed": 32,
+    "failed": 0,
+    "counts": {
+      "TP": 16,
+      "FP": 0,
+      "TN": 14,
+      "FN": 0,
+      "AMB_OK": 2,
+      "AMB_BAD": 0
+    },
+    "intervention_precision": 1.0,
+    "intervention_recall": 1.0,
+    "do_nothing_accuracy": 1.0,
+    "latency_ms": {
+      "p50": 7.47,
+      "p95": 20.09,
+      "mean": 10.31,
+      "max": 22.29
+    },
+    "llm_calls_total": 0
+  },
+  "cases": [
+    {
+      "id": "brief_example_multiterm",
+      "description": "The brief's own example \u2014 a preferred name spelling and a product name in one utterance.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "ask aditya to review the sarvam kiwi service",
+        "formatted": "Ask Aditya to review the Sarvam Kiwi service."
+      },
+      "expected": {
+        "memory_aware": "Ask Aaditya to review the Sarvam Kivi service.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Ask Aaditya to review the Sarvam Kivi service.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Aditya",
+            "canonical": "Aaditya",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.898,
+            "threshold": 0.72
+          },
+          {
+            "action": "skip",
+            "span_text": "Sarvam",
+            "canonical": "Sarvam",
+            "reason_tag": "already_canonical",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.902,
+            "threshold": 0.72
+          },
+          {
+            "action": "apply",
+            "span_text": "Kiwi",
+            "canonical": "Kivi",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          },
+          {
+            "action": "skip",
+            "span_text": "service",
+            "canonical": "Sarvam",
+            "reason_tag": "common_word_guard",
+            "detail": "",
+            "phonetic_score": 0.7988,
+            "combined_score": 0.6273,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 22.29
+      },
+      "memory_state": [
+        {
+          "id": 3,
+          "canonical": "Sarvam",
+          "category": "org",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "servam",
+            "sarwam"
+          ]
+        },
+        {
+          "id": 2,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi",
+            "kiwwi"
+          ]
+        },
+        {
+          "id": 1,
+          "canonical": "Aaditya",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Aditya",
+            "aditya"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 41.57
+    },
+    {
+      "id": "person_spelling_promoted_after_two",
+      "description": "A name spelling taught by two corrections is promoted to active and then applied.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "sara owns the rollout",
+        "formatted": "Sara owns the rollout."
+      },
+      "expected": {
+        "memory_aware": "Sarah owns the rollout.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Sarah owns the rollout.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Sara",
+            "canonical": "Sarah",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.898,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 6.34
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Sarah",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Sara"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 15.43
+    },
+    {
+      "id": "product_casing_from_dictionary",
+      "description": "A dictionary word fixes casing on a lowercase occurrence.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "ship the kivi build tonight",
+        "formatted": "Ship the kivi build tonight."
+      },
+      "expected": {
+        "memory_aware": "Ship the Kivi build tonight.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Ship the Kivi build tonight.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "kivi",
+            "canonical": "Kivi",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 9.34
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 29.01
+    },
+    {
+      "id": "jargon_two_token_alias",
+      "description": "A two-token mis-hearing (\"post gres\") maps to a one-word canonical via an alias.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "move the queue to post gres",
+        "formatted": "Move the queue to Post Gres."
+      },
+      "expected": {
+        "memory_aware": "Move the queue to Postgres.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Move the queue to Postgres.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Post Gres",
+            "canonical": "Postgres",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.952,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 11.91
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Postgres",
+          "category": "term",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "post gres",
+            "postgress"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 25.81
+    },
+    {
+      "id": "jargon_pytorch_from_corrections",
+      "description": "Jargon learned only from corrections (no dictionary entry).",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "profile the pie torch model",
+        "formatted": "Profile the Pie Torch model."
+      },
+      "expected": {
+        "memory_aware": "Profile the PyTorch model.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Profile the PyTorch model.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Pie Torch",
+            "canonical": "PyTorch",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.868,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 19.54
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "PyTorch",
+          "category": "term",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Pie Torch",
+            "torch"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 47.62
+    },
+    {
+      "id": "brand_lowercase_to_canonical",
+      "description": "Organisation name normalised from a lowercase spoken form.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "servam shipped the release",
+        "formatted": "Servam shipped the release."
+      },
+      "expected": {
+        "memory_aware": "Sarvam shipped the release.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Sarvam shipped the release.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Servam",
+            "canonical": "Sarvam",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.962,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 15.02
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Sarvam",
+          "category": "org",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "servam",
+            "sarwam"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 32.0
+    },
+    {
+      "id": "repeated_term_two_occurrences",
+      "description": "The same entry is applied to every occurrence in the utterance.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "restart kivi then redeploy kivi",
+        "formatted": "Restart kivi then redeploy kivi."
+      },
+      "expected": {
+        "memory_aware": "Restart Kivi then redeploy Kivi.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Restart Kivi then redeploy Kivi.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "kivi",
+            "canonical": "Kivi",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          },
+          {
+            "action": "apply",
+            "span_text": "kivi",
+            "canonical": "Kivi",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 19.37
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 40.58
+    },
+    {
+      "id": "multiword_next_js",
+      "description": "Two-token span maps to a punctuated canonical.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "the next js router changed",
+        "formatted": "The Next Js router changed."
+      },
+      "expected": {
+        "memory_aware": "The Next.js router changed.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "The Next.js router changed.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Next Js",
+            "canonical": "Next.js",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.952,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 19.12
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Next.js",
+          "category": "term",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "next js",
+            "nextjs"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 44.43
+    },
+    {
+      "id": "multiword_type_script",
+      "description": "Two-token span \"Type Script\" -> \"TypeScript\".",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "rewrite it in type script",
+        "formatted": "Rewrite it in Type Script."
+      },
+      "expected": {
+        "memory_aware": "Rewrite it in TypeScript.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Rewrite it in TypeScript.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Type Script",
+            "canonical": "TypeScript",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.952,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 12.56
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "TypeScript",
+          "category": "term",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "type script"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 26.68
+    },
+    {
+      "id": "context_resolves_ambiguity",
+      "description": "Two similar names exist, but the correct one already appears in the sentence.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "remind jon and then tell jhon the plan",
+        "formatted": "Remind Jon and then tell Jhon the plan."
+      },
+      "expected": {
+        "memory_aware": "Remind Jon and then tell Jon the plan.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Remind Jon and then tell Jon the plan.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Jon",
+            "canonical": "Jon",
+            "reason_tag": "already_canonical",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.922,
+            "threshold": 0.72
+          },
+          {
+            "action": "apply",
+            "span_text": "Jhon",
+            "canonical": "Jon",
+            "reason_tag": "applied",
+            "detail": "disambiguated by context (matched 'Jon' used elsewhere)",
+            "phonetic_score": 0.9625,
+            "combined_score": 0.8988,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 21.38
+      },
+      "memory_state": [
+        {
+          "id": 2,
+          "canonical": "John",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        },
+        {
+          "id": 1,
+          "canonical": "Jon",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 40.67
+    },
+    {
+      "id": "one_rejection_is_not_enough",
+      "description": "A single rejection does not suppress an active entry (needs two).",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "sara approved it",
+        "formatted": "Sara approved it."
+      },
+      "expected": {
+        "memory_aware": "Sarah approved it.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Sarah approved it.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Sara",
+            "canonical": "Sarah",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.898,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 14.62
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Sarah",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Sara"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 25.98
+    },
+    {
+      "id": "mixed_sentence_two_entries",
+      "description": "Two different entries applied in one sentence, no guard triggered.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "tell sara the kivi demo is ready",
+        "formatted": "Tell Sara the kivi demo is ready."
+      },
+      "expected": {
+        "memory_aware": "Tell Sarah the Kivi demo is ready.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Tell Sarah the Kivi demo is ready.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Sara",
+            "canonical": "Sarah",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.898,
+            "threshold": 0.72
+          },
+          {
+            "action": "apply",
+            "span_text": "kivi",
+            "canonical": "Kivi",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 18.79
+      },
+      "memory_state": [
+        {
+          "id": 2,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        },
+        {
+          "id": 1,
+          "canonical": "Sarah",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Sara"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 42.59
+    },
+    {
+      "id": "org_alias_servam",
+      "description": "Alias match on an organisation name mid-sentence.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "i met the sarwam founders",
+        "formatted": "I met the Sarwam founders."
+      },
+      "expected": {
+        "memory_aware": "I met the Sarvam founders.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "I met the Sarvam founders.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Sarwam",
+            "canonical": "Sarvam",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.902,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 7.47
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Sarvam",
+          "category": "org",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "servam",
+            "sarwam"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 18.28
+    },
+    {
+      "id": "redis_alias",
+      "description": "Common infra term with a plausible mis-hearing.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "cache it in reddis",
+        "formatted": "Cache it in Reddis."
+      },
+      "expected": {
+        "memory_aware": "Cache it in Redis.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Cache it in Redis.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Reddis",
+            "canonical": "Redis",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.932,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 5.55
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Redis",
+          "category": "term",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "reddis",
+            "red is"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 12.21
+    },
+    {
+      "id": "alias_auto_learned_from_asr",
+      "description": "A correction also captures the rough ASR form as an alias; a later utterance with that exact form is then recognised.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "adhitya joins at noon",
+        "formatted": "Adhitya joins at noon."
+      },
+      "expected": {
+        "memory_aware": "Aaditya joins at noon.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Aaditya joins at noon.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Adhitya",
+            "canonical": "Aaditya",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.898,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 6.5
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Aaditya",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Aditya",
+            "adhitya"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 12.72
+    },
+    {
+      "id": "empty_memory_passthrough",
+      "description": "With nothing taught, every utterance passes through untouched.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "ask aditya to review the sarvam kiwi service",
+        "formatted": "Ask Aditya to review the Sarvam Kiwi service."
+      },
+      "expected": {
+        "memory_aware": "Ask Aditya to review the Sarvam Kiwi service.",
+        "intervened": false
+      },
+      "actual": {
+        "memory_aware_text": "Ask Aditya to review the Sarvam Kiwi service.",
+        "intervened": false,
+        "decisions": [],
+        "llm_calls": 0,
+        "latency_ms": 1.2
+      },
+      "memory_state": [],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 4.02
+    },
+    {
+      "id": "homophone_food_kiwi",
+      "description": "'kiwi' the fruit in a clearly food sentence must not become the product.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "i ate a kiwi for breakfast",
+        "formatted": "I ate a kiwi for breakfast."
+      },
+      "expected": {
+        "memory_aware": "I ate a kiwi for breakfast.",
+        "intervened": false,
+        "reason": "food_context_guard"
+      },
+      "actual": {
+        "memory_aware_text": "I ate a kiwi for breakfast.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "kiwi",
+            "canonical": "Kivi",
+            "reason_tag": "food_context_guard",
+            "detail": "food-context cues; span is a common-noun homophone",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 4.72
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 13.32
+    },
+    {
+      "id": "homophone_food_kiwi_salad",
+      "description": "Food context via \"salad\" / \"fresh\".",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "the kiwi salad was fresh",
+        "formatted": "The kiwi salad was fresh."
+      },
+      "expected": {
+        "memory_aware": "The kiwi salad was fresh.",
+        "intervened": false,
+        "reason": "food_context_guard"
+      },
+      "actual": {
+        "memory_aware_text": "The kiwi salad was fresh.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "kiwi",
+            "canonical": "Kivi",
+            "reason_tag": "food_context_guard",
+            "detail": "food-context cues; span is a common-noun homophone",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 4.94
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 10.91
+    },
+    {
+      "id": "common_word_service",
+      "description": "'service' rhymes with 'Sarvam' but is an everyday word in an everyday sentence.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "the service was slow today",
+        "formatted": "The service was slow today."
+      },
+      "expected": {
+        "memory_aware": "The service was slow today.",
+        "intervened": false,
+        "reason": "common_word_guard"
+      },
+      "actual": {
+        "memory_aware_text": "The service was slow today.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "service",
+            "canonical": "Sarvam",
+            "reason_tag": "common_word_guard",
+            "detail": "",
+            "phonetic_score": 0.7988,
+            "combined_score": 0.6273,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 5.13
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Sarvam",
+          "category": "org",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "servam"
+          ]
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 13.0
+    },
+    {
+      "id": "common_word_join",
+      "description": "'join' is a homophone of 'Jon' but used as a verb.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "please join the standup",
+        "formatted": "Please join the standup."
+      },
+      "expected": {
+        "memory_aware": "Please join the standup.",
+        "intervened": false,
+        "reason": "common_word_guard"
+      },
+      "actual": {
+        "memory_aware_text": "Please join the standup.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "join",
+            "canonical": "Jon",
+            "reason_tag": "common_word_guard",
+            "detail": "",
+            "phonetic_score": 0.9667,
+            "combined_score": 0.7514,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 6.1
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Jon",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 14.35
+    },
+    {
+      "id": "common_word_mark",
+      "description": "Person 'Marc' in memory; 'mark' used as a verb.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "mark the ticket as done",
+        "formatted": "Mark the ticket as done."
+      },
+      "expected": {
+        "memory_aware": "Mark the ticket as done.",
+        "intervened": false,
+        "reason": "common_word_guard"
+      },
+      "actual": {
+        "memory_aware_text": "Mark the ticket as done.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Mark",
+            "canonical": "Marc",
+            "reason_tag": "common_word_guard",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.772,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 5.99
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Marc",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 15.64
+    },
+    {
+      "id": "weak_evidence_stays_candidate",
+      "description": "One correction only \u2014 entry is a candidate, so Kivi does nothing yet.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "loop in nikhil please",
+        "formatted": "Loop in Nikhil please."
+      },
+      "expected": {
+        "memory_aware": "Loop in Nikhil please.",
+        "intervened": false,
+        "reason": "not_active"
+      },
+      "actual": {
+        "memory_aware_text": "Loop in Nikhil please.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Nikhil",
+            "canonical": "Nikhhil",
+            "reason_tag": "not_active",
+            "detail": "needs 2 corroborating corrections",
+            "phonetic_score": 1.0,
+            "combined_score": 0.828,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 5.55
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Nikhhil",
+          "category": "person",
+          "status": "candidate",
+          "confidence": 0.35,
+          "aliases": [
+            "Nikhil"
+          ]
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 14.29
+    },
+    {
+      "id": "suppressed_entry_not_applied",
+      "description": "An entry rejected twice is suppressed and never applied.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "jane will present",
+        "formatted": "Jane will present."
+      },
+      "expected": {
+        "memory_aware": "Jane will present.",
+        "intervened": false,
+        "reason": "suppressed"
+      },
+      "actual": {
+        "memory_aware_text": "Jane will present.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Jane",
+            "canonical": "Jayne",
+            "reason_tag": "suppressed",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.758,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 5.75
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Jayne",
+          "category": "person",
+          "status": "suppressed",
+          "confidence": 0.1,
+          "aliases": [
+            "Jane"
+          ]
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 12.74
+    },
+    {
+      "id": "already_canonical_noop",
+      "description": "The text is already correct; nothing to do.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "ask aaditya to review it",
+        "formatted": "Ask Aaditya to review it."
+      },
+      "expected": {
+        "memory_aware": "Ask Aaditya to review it.",
+        "intervened": false,
+        "reason": "already_canonical"
+      },
+      "actual": {
+        "memory_aware_text": "Ask Aaditya to review it.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Aaditya",
+            "canonical": "Aaditya",
+            "reason_tag": "already_canonical",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.838,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 5.61
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Aaditya",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Aditya"
+          ]
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 13.32
+    },
+    {
+      "id": "no_relevant_memory",
+      "description": "A full memory, but nothing in this sentence sounds like any entry.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "the weather is nice today",
+        "formatted": "The weather is nice today."
+      },
+      "expected": {
+        "memory_aware": "The weather is nice today.",
+        "intervened": false
+      },
+      "actual": {
+        "memory_aware_text": "The weather is nice today.",
+        "intervened": false,
+        "decisions": [],
+        "llm_calls": 0,
+        "latency_ms": 6.94
+      },
+      "memory_state": [
+        {
+          "id": 3,
+          "canonical": "Postgres",
+          "category": "term",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "post gres"
+          ]
+        },
+        {
+          "id": 2,
+          "canonical": "Sarvam",
+          "category": "org",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "servam"
+          ]
+        },
+        {
+          "id": 1,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 11.72
+    },
+    {
+      "id": "deleted_entry_not_applied",
+      "description": "An entry that was taught and then deleted has no effect.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "convert it to pie torch",
+        "formatted": "Convert it to Pie Torch."
+      },
+      "expected": {
+        "memory_aware": "Convert it to Pie Torch.",
+        "intervened": false
+      },
+      "actual": {
+        "memory_aware_text": "Convert it to Pie Torch.",
+        "intervened": false,
+        "decisions": [],
+        "llm_calls": 0,
+        "latency_ms": 1.14
+      },
+      "memory_state": [],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 4.82
+    },
+    {
+      "id": "morphology_plural_known_limitation",
+      "description": "known_limitation \u2014 \"kiwis\" is an inflected form; Kivi matches it phonetically to \"Kivi\" and rewrites, dropping the plural. A word-level phonetic memory has no morphology model.",
+      "clazz": "should_not_intervene",
+      "known_limitation": true,
+      "inputs": {
+        "asr": "i bought two kiwis at the market",
+        "formatted": "I bought two kiwis at the market."
+      },
+      "expected": {
+        "memory_aware": "I bought two kiwis at the market.",
+        "intervened": false
+      },
+      "actual": {
+        "memory_aware_text": "I bought two Kivi at the market.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "kiwis",
+            "canonical": "Kivi",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 0.96,
+            "combined_score": 0.9472,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 8.65
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        }
+      ],
+      "outcome": "FP",
+      "reason_ok": true,
+      "passed": false,
+      "wall_ms": 18.25
+    },
+    {
+      "id": "food_guard_is_sentence_level_known_limitation",
+      "description": "known_limitation \u2014 the food-context guard is sentence-level, so an eating clause earlier in the sentence suppresses a legitimate later \"Kivi\". Disentangling the two clauses needs sentence understanding beyond word-level memory.",
+      "clazz": "should_intervene",
+      "known_limitation": true,
+      "inputs": {
+        "asr": "i ate lunch then joined the kivi review",
+        "formatted": "I ate lunch then joined the kivi review."
+      },
+      "expected": {
+        "memory_aware": "I ate lunch then joined the Kivi review.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "I ate lunch then joined the kivi review.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "kivi",
+            "canonical": "Kivi",
+            "reason_tag": "food_context_guard",
+            "detail": "food-context cues; span is a common-noun homophone",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 6.58
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        }
+      ],
+      "outcome": "FN",
+      "reason_ok": false,
+      "passed": false,
+      "wall_ms": 17.11
+    },
+    {
+      "id": "proper_noun_collision_cologne",
+      "description": "A name in memory (\"Colin\") must not overwrite an unrelated proper noun (\"Cologne\") that only rhymes in metaphone space.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "we flew to cologne last week",
+        "formatted": "We flew to Cologne last week."
+      },
+      "expected": {
+        "memory_aware": "We flew to Cologne last week.",
+        "intervened": false,
+        "reason": "weak_surface_match"
+      },
+      "actual": {
+        "memory_aware_text": "We flew to Cologne last week.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Cologne",
+            "canonical": "Colin",
+            "reason_tag": "weak_surface_match",
+            "detail": "letter similarity 0.67 < 0.85; teach an explicit alias if this really is 'Colin'",
+            "phonetic_score": 0.9267,
+            "combined_score": 0.8766,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 5.56
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Colin",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 13.49
+    },
+    {
+      "id": "proper_noun_collision_terracotta",
+      "description": "'Terra' (a person) vs the common word 'terracotta' \u2014 letters too far apart for a canonical-only rewrite.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "the terra cotta pots cracked",
+        "formatted": "The Terra cotta pots cracked."
+      },
+      "expected": {
+        "memory_aware": "The Terra cotta pots cracked.",
+        "intervened": false,
+        "reason": "weak_surface_match"
+      },
+      "actual": {
+        "memory_aware_text": "The Terra cotta pots cracked.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Terra",
+            "canonical": "Tara",
+            "reason_tag": "weak_surface_match",
+            "detail": "letter similarity 0.67 < 0.85; teach an explicit alias if this really is 'Tara'",
+            "phonetic_score": 0.9025,
+            "combined_score": 0.8616,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 6.59
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Tara",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 11.98
+    },
+    {
+      "id": "distinct_name_left_alone",
+      "description": "'Neha' and 'Naya' are different names that share a metaphone bucket; the letters are too far apart to rewrite.",
+      "clazz": "should_not_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "neha will lead the sync",
+        "formatted": "Neha will lead the sync."
+      },
+      "expected": {
+        "memory_aware": "Neha will lead the sync.",
+        "intervened": false,
+        "reason": "weak_surface_match"
+      },
+      "actual": {
+        "memory_aware_text": "Neha will lead the sync.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Neha",
+            "canonical": "Naya",
+            "reason_tag": "weak_surface_match",
+            "detail": "letter similarity 0.50 < 0.85; teach an explicit alias if this really is 'Naya'",
+            "phonetic_score": 0.68,
+            "combined_score": 0.6396,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 11.77
+      },
+      "memory_state": [
+        {
+          "id": 1,
+          "canonical": "Naya",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Naia"
+          ]
+        }
+      ],
+      "outcome": "TN",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 23.81
+    },
+    {
+      "id": "long_sentence_mixed_outcomes",
+      "description": "One utterance, four candidate spans \u2014 two applied, one already-canonical, one common-word guarded.",
+      "clazz": "should_intervene",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "ask aditya to service the sarvam kiwi cluster",
+        "formatted": "Ask Aditya to service the Sarvam Kiwi cluster."
+      },
+      "expected": {
+        "memory_aware": "Ask Aaditya to service the Sarvam Kivi cluster.",
+        "intervened": true,
+        "reason": "applied"
+      },
+      "actual": {
+        "memory_aware_text": "Ask Aaditya to service the Sarvam Kivi cluster.",
+        "intervened": true,
+        "decisions": [
+          {
+            "action": "apply",
+            "span_text": "Aditya",
+            "canonical": "Aaditya",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.898,
+            "threshold": 0.72
+          },
+          {
+            "action": "skip",
+            "span_text": "service",
+            "canonical": "Sarvam",
+            "reason_tag": "common_word_guard",
+            "detail": "",
+            "phonetic_score": 0.7988,
+            "combined_score": 0.6273,
+            "threshold": 0.72
+          },
+          {
+            "action": "skip",
+            "span_text": "Sarvam",
+            "canonical": "Sarvam",
+            "reason_tag": "already_canonical",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.902,
+            "threshold": 0.72
+          },
+          {
+            "action": "apply",
+            "span_text": "Kiwi",
+            "canonical": "Kivi",
+            "reason_tag": "applied",
+            "detail": "",
+            "phonetic_score": 1.0,
+            "combined_score": 0.912,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 20.09
+      },
+      "memory_state": [
+        {
+          "id": 3,
+          "canonical": "Sarvam",
+          "category": "org",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "servam"
+          ]
+        },
+        {
+          "id": 2,
+          "canonical": "Kivi",
+          "category": "product",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": [
+            "kiwi"
+          ]
+        },
+        {
+          "id": 1,
+          "canonical": "Aaditya",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Aditya"
+          ]
+        }
+      ],
+      "outcome": "TP",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 40.33
+    },
+    {
+      "id": "ambiguous_two_people_no_context",
+      "description": "'Jhon' sounds equally like 'Jon' and 'John'; no context to break the tie.",
+      "clazz": "ambiguous",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "ask jhon to sign off",
+        "formatted": "Ask Jhon to sign off."
+      },
+      "expected": {
+        "memory_aware": "Ask Jhon to sign off.",
+        "intervened": false,
+        "reason": "ambiguous_conflict"
+      },
+      "actual": {
+        "memory_aware_text": "Ask Jhon to sign off.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Jhon",
+            "canonical": "John",
+            "reason_tag": "ambiguous_conflict",
+            "detail": "competing entries: John, Jon",
+            "phonetic_score": 0.9625,
+            "combined_score": 0.8988,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 15.22
+      },
+      "memory_state": [
+        {
+          "id": 2,
+          "canonical": "John",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        },
+        {
+          "id": 1,
+          "canonical": "Jon",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        }
+      ],
+      "outcome": "AMB_OK",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 28.97
+    },
+    {
+      "id": "ambiguous_near_duplicate_spellings",
+      "description": "'Saara' matches both 'Sara' and 'Sarah' equally; no tie-breaker.",
+      "clazz": "ambiguous",
+      "known_limitation": false,
+      "inputs": {
+        "asr": "saara owns the doc",
+        "formatted": "Saara owns the doc."
+      },
+      "expected": {
+        "memory_aware": "Saara owns the doc.",
+        "intervened": false,
+        "reason": "ambiguous_conflict"
+      },
+      "actual": {
+        "memory_aware_text": "Saara owns the doc.",
+        "intervened": false,
+        "decisions": [
+          {
+            "action": "skip",
+            "span_text": "Saara",
+            "canonical": "Sarah",
+            "reason_tag": "ambiguous_conflict",
+            "detail": "competing entries: Sara, Sarah",
+            "phonetic_score": 0.9467,
+            "combined_score": 0.865,
+            "threshold": 0.72
+          }
+        ],
+        "llm_calls": 0,
+        "latency_ms": 7.84
+      },
+      "memory_state": [
+        {
+          "id": 2,
+          "canonical": "Sara",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.9,
+          "aliases": []
+        },
+        {
+          "id": 1,
+          "canonical": "Sarah",
+          "category": "person",
+          "status": "active",
+          "confidence": 0.6,
+          "aliases": [
+            "Sar"
+          ]
+        }
+      ],
+      "outcome": "AMB_OK",
+      "reason_ok": true,
+      "passed": true,
+      "wall_ms": 16.63
+    }
+  ]
+}

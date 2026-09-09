@@ -1,0 +1,133 @@
+{
+  "headline": {
+    "cases": 28,
+    "passed": 28,
+    "pass_rate": 1.0,
+    "action_accuracy": 1.0,
+    "exact_output_match_rate": 1.0,
+    "intervention_precision": 1.0,
+    "intervention_recall": 1.0,
+    "intervention_f1": 1.0,
+    "non_intervention_accuracy": 1.0,
+    "defer_accuracy": 1.0,
+    "over_intervention_count": 0,
+    "memory_stability_pass": "6/6",
+    "idempotency_pass": "1/1"
+  },
+  "latency_ms": {
+    "p50": 3.145,
+    "p95": 14.52,
+    "max": 14.56
+  },
+  "model_usage": {
+    "total_model_calls": 0,
+    "total_est_cost_usd": 0.0,
+    "note": "0 by design: echo ASR + rule-based formatter, no LLM in the core path"
+  },
+  "personal_phonetics": {
+    "cases": 5,
+    "passed": 5,
+    "reason_assertions_pass": "3/3",
+    "demonstrates": {
+      "nomination (accent rule creates the candidate)": [
+        "personal-learn-01"
+      ],
+      "prior (history lifts a borderline match)": [
+        "personal-prior-01",
+        "personal-tiebreak-01"
+      ],
+      "safety (accent signal must not override KEEP)": [
+        "personal-safety-01",
+        "personal-noop-01"
+      ]
+    },
+    "note": "Accent profile starts empty; every personal_phonetics case learns its rules from `setup` corrections before the pipeline runs. It never overrides a deliberate KEEP or a not-yet-active memory."
+  },
+  "by_category": {
+    "exact_match": {
+      "total": 1,
+      "passed": 1
+    },
+    "normalized_match": {
+      "total": 1,
+      "passed": 1
+    },
+    "fuzzy_match": {
+      "total": 1,
+      "passed": 1
+    },
+    "phonetic_match": {
+      "total": 1,
+      "passed": 1
+    },
+    "strong_memory": {
+      "total": 1,
+      "passed": 1
+    },
+    "contextual_contradiction": {
+      "total": 3,
+      "passed": 3
+    },
+    "weak_memory": {
+      "total": 1,
+      "passed": 1
+    },
+    "ambiguous_candidate": {
+      "total": 1,
+      "passed": 1
+    },
+    "new_word": {
+      "total": 1,
+      "passed": 1
+    },
+    "entity_type_acronym": {
+      "total": 1,
+      "passed": 1
+    },
+    "acronym_false_friend": {
+      "total": 1,
+      "passed": 1
+    },
+    "entity_type_company": {
+      "total": 1,
+      "passed": 1
+    },
+    "entity_type_person": {
+      "total": 1,
+      "passed": 1
+    },
+    "explicit_correction": {
+      "total": 1,
+      "passed": 1
+    },
+    "repeated_observation": {
+      "total": 1,
+      "passed": 1
+    },
+    "user_rejection": {
+      "total": 2,
+      "passed": 2
+    },
+    "conflicting_memories": {
+      "total": 1,
+      "passed": 1
+    },
+    "idempotency": {
+      "total": 1,
+      "passed": 1
+    },
+    "multi_entity": {
+      "total": 1,
+      "passed": 1
+    },
+    "user_confirmation": {
+      "total": 1,
+      "passed": 1
+    },
+    "personal_phonetics": {
+      "total": 5,
+      "passed": 5
+    }
+  },
+  "failures": []
+}

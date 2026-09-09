@@ -24,21 +24,81 @@ Committed evaluation: [`evaluation/results/report.md`](evaluation/results/report
 
 ## Pipeline
 
-```
-audio/text
- → ASR              level 1: raw transcript                    (echo provider; Whisper optional)
- → formatter        level 2: generic punctuation / casing       (rule-based)
- → span builder     align formatted tokens ↔ ASR tokens
- → retrieval        exact / normalized / fuzzy / phonetic / personal   → candidates only
- → context          keyword lists + SEMANTIC layer (embedding model)
- → grammar          homophone slot check (see/sea, no/know)
- → decision engine  multiplicative score + hard gates          → REPLACE / KEEP / DEFER
- → rewriter         level 3: memory-aware transcript
- → decision trace   why every word changed, or was deliberately left alone
+```mermaid
+flowchart TD
+    A["🎙 audio / text"] --> B["<b>ASR</b><br/><i>level 1 · raw transcript</i><br/>echo provider"]
+    B --> C["<b>Formatter</b><br/><i>level 2 · punctuation, casing</i><br/>rule-based"]
+    C --> D["<b>Span builder</b><br/>align formatted ↔ ASR tokens"]
+    D --> E["<b>Retrieval</b><br/>exact · normalized · fuzzy<br/>phonetic · personal"]
+    E -->|"candidates only,<br/>never a verdict"| F{{"<b>Scoring</b>"}}
+
+    F --> G["<b>Decision engine</b><br/>score × hard gates"]
+    G --> H["<b>Rewriter</b><br/><i>level 3 · memory-aware</i>"]
+    H --> I["📝 output + <b>decision trace</b>"]
+
+    subgraph SIG ["three context signals"]
+        S1["<b>Keyword</b><br/>hand-listed, per memory"]
+        S2["<b>Semantic</b><br/>local embedding model"]
+        S3["<b>Grammar</b><br/>homophone slot"]
+    end
+    SIG --> F
+
+    subgraph MEM ["SQLite · the only mutable state"]
+        M1[("memory · alias<br/>observation · evidence<br/>sound_pattern")]
+    end
+    M1 -.->|read| E
+    M1 -.->|read| SIG
+    OBS["👤 user correction<br/><code>POST /api/observe</code>"] ==>|"the ONLY writer"| M1
+
+    style A fill:#eef2ff,stroke:#6366f1
+    style I fill:#ecfdf5,stroke:#10b981
+    style OBS fill:#fef3c7,stroke:#f59e0b
+    style G fill:#fce7f3,stroke:#ec4899
+    style SIG fill:#f8fafc,stroke:#94a3b8
+    style MEM fill:#f8fafc,stroke:#94a3b8
 ```
 
-Processing is **read-only** w.r.t. memory. Only user observations (`/api/observe`) mutate it.
-No LLM anywhere: `model_calls` and `est_cost_usd` are `0` by design.
+Processing is **read-only** w.r.t. memory — running the pipeline a thousand times changes
+nothing. Only a user observation writes. No LLM anywhere: `model_calls` and
+`est_cost_usd` are `0` by design.
+
+### The decision engine
+
+Gates are checked **in order**; the first one that fires wins. This ordering is the whole
+safety story — it is why a learned accent rule can never override a deliberate KEEP.
+
+```mermaid
+flowchart TD
+    IN["span + candidates"] --> G1{"any candidate?"}
+    G1 -->|no| KEEP1["<b>KEEP</b><br/><code>no_memory</code>"]
+    G1 -->|yes| G2{"negative context<br/>s_ctx_neg ≥ 0.5 ?"}
+    G2 -->|yes| KEEP2["<b>KEEP</b><br/><code>negative_context</code><br/><i>I ate a kiwi</i>"]
+    G2 -->|no| G3{"homophone pair?<br/>(both common words)"}
+    G3 -->|"grammar favours<br/>the other word"| KEEP3["<b>KEEP</b><br/><code>homophone_grammar</code><br/><i>I see you</i>"]
+    G3 -->|"no signal,<br/>not taught"| KEEP4["<b>KEEP</b><br/><code>homophone_unclear</code>"]
+    G3 -->|"grammar favours canonical,<br/>or not a pair"| G4{"ambiguous or<br/>contradicted?"}
+    G4 -->|yes| DEF1["<b>DEFER</b><br/><code>ambiguous</code><br/><i>ask civi</i>"]
+    G4 -->|no| G5{"memory active?"}
+    G5 -->|no| DEF2["<b>DEFER</b><br/><code>memory_not_active</code><br/><i>proposed → never auto-applies</i>"]
+    G5 -->|yes| BAND{"combined score"}
+    BAND -->|"&ge; 0.55"| REP["<b>REPLACE</b>"]
+    BAND -->|"&ge; 0.32"| DEF3["<b>DEFER</b><br/><i>shown as a suggestion</i>"]
+    BAND -->|"&lt; 0.32"| KEEP5["<b>KEEP</b><br/><code>below_threshold</code>"]
+
+    style KEEP1 fill:#f1f5f9,stroke:#64748b
+    style KEEP2 fill:#f1f5f9,stroke:#64748b
+    style KEEP3 fill:#f1f5f9,stroke:#64748b
+    style KEEP4 fill:#f1f5f9,stroke:#64748b
+    style KEEP5 fill:#f1f5f9,stroke:#64748b
+    style DEF1 fill:#fef3c7,stroke:#f59e0b
+    style DEF2 fill:#fef3c7,stroke:#f59e0b
+    style DEF3 fill:#fef3c7,stroke:#f59e0b
+    style REP fill:#ecfdf5,stroke:#10b981
+```
+
+`combined = s_surf × confidence × context_gate × personal_boost` — multiplicative, so any
+weak factor vetoes. The personal boost is applied **after** the gates and is capped, so it
+can lift a near-tie but never force an intervention.
 
 ## Core ideas
 
@@ -56,7 +116,32 @@ No LLM anywhere: `model_calls` and `est_cost_usd` are `0` by design.
 ## Contextual understanding
 
 Three independent signals feed the same decision engine. None of them can replace a word
-on their own — they only move the score.
+on their own — they only move the score. They are deliberately layered cheapest-first,
+and each covers the previous one's blind spot.
+
+```mermaid
+flowchart LR
+    W["<b>Kivi is edible</b><br/>which sense?"] --> L1
+
+    L1["<b>1 · Keyword</b><br/>hand-listed words<br/>per memory"]
+    L2["<b>2 · Semantic</b><br/>meaning vector vs this<br/>memory's own examples"]
+    L3["<b>3 · Grammar</b><br/>which slot does the<br/>word sit in?"]
+
+    L1 -->|"blind spot:<br/>edible was never listed"| L2
+    L2 -->|"blind spot:<br/>I see you is too short"| L3
+    L3 -->|"blind spot:<br/>son and sun share a slot"| LIM["acknowledged<br/>limitation"]
+
+    L1 --> OUT{{"context score<br/>→ decision engine"}}
+    L2 --> OUT
+    L3 --> OUT
+
+    style W fill:#eef2ff,stroke:#6366f1
+    style L1 fill:#f0fdfa,stroke:#14b8a6
+    style L2 fill:#eff6ff,stroke:#3b82f6
+    style L3 fill:#faf5ff,stroke:#a855f7
+    style LIM fill:#fef2f2,stroke:#ef4444
+    style OUT fill:#fce7f3,stroke:#ec4899
+```
 
 ### 1. Keyword context (rule-based)
 
@@ -137,6 +222,41 @@ son studies.                        →  unchanged                KEEP    (sem +
 
 A taught correction on a same-POS pair is applied only when the meaning **clearly** agrees
 (`semantic_context.pos_clear`). Below that it is surfaced, never auto-applied.
+
+## How a memory learns
+
+One correction fans out into five effects. Confidence and applicability are updated on
+**separate axes** — this is why rejecting *"I ate a kiwi"* teaches Kivi where **not** to
+apply without ever weakening the `Kivi` memory itself.
+
+```mermaid
+flowchart TD
+    U["👤 <b>that should be Kivi, not kiwi</b><br/>click a word, Save fix"] --> O["<b>observation</b><br/>immutable, append-only"]
+
+    O --> A1["<b>alias</b><br/>“kiwi” → Kivi"]
+    O --> A2["<b>evidence</b><br/>strong_positive +1.0"]
+    O --> A3["<b>positive context</b><br/>+ surrounding words"]
+    O --> A4["<b>accent profile</b><br/>derive w→v (medial)"]
+    O --> A5["<b>semantic prototype</b><br/>+ this sentence's vector"]
+
+    A2 --> C["<b>confidence</b><br/><i>is this memory real?</i>"]
+    A3 --> P["<b>applicability</b><br/><i>does it apply HERE?</i>"]
+    A5 --> P
+    C --> ST{"status<br/>proposed → active"}
+
+    R["👤 <b>no, leave it</b><br/>Keep kiwi"] --> N["<b>negative_context</b><br/>−1.0, scoped"]
+    N --x|"never enters"| C
+    N --> P
+
+    style U fill:#fef3c7,stroke:#f59e0b
+    style R fill:#fef3c7,stroke:#f59e0b
+    style C fill:#ecfdf5,stroke:#10b981
+    style P fill:#eff6ff,stroke:#3b82f6
+    style N fill:#fef2f2,stroke:#ef4444
+```
+
+Verified by eval `memory_stability` (**11/11**) and by the idempotency check: processing
+the same utterance twice produces identical output and grows nothing.
 
 ## Personal (accent-adaptive) phonetics
 
@@ -228,14 +348,10 @@ harness**, which records per-case scores and writes `failures/<id>.json` for any
 
 ## AI use
 
-Built with **Claude Code** as a pair-programmer against a design brief: it wrote the bulk
-of the code, the eval dataset, and this document, and iterated the scoring, the semantic
-layer, and the decision guards against the test suite. Every design decision — the
-evidence model, the confidence/applicability split, the closed reason vocabulary, gate
-ordering, the homophone policy, and the acknowledged limitations — was reviewed and
-directed by me.
+**Build time:** written with Claude Code as a pair-programmer; every design decision —
+the evidence model, the confidence/applicability split, gate ordering, the homophone
+policy, the limitations above — was directed and reviewed by me.
 
-**At runtime there is no AI service call.** The semantic layer runs a small *embedding*
-model locally from vendored weights (deterministic, offline, $0); everything else is
-deterministic phonetics, edit distance, and rules. No private corpus, no pretrained
-phonetic model, no API key.
+**Run time:** no AI service call. The semantic layer runs a small *embedding* model
+locally from vendored weights (deterministic, offline, $0); everything else is phonetics,
+edit distance and rules. No API key, no private corpus.

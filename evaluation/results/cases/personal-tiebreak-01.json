@@ -34,7 +34,7 @@
     "note": "Your correction history separated a near-tie: 'Kivi' has been misheard 4x vs 0x for 'Sivi'."
   },
   "passed": true,
-  "latency_ms": 4.28,
+  "latency_ms": 9.43,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

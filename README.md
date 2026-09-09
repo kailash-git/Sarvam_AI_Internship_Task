@@ -61,12 +61,22 @@ flowchart TD
     DB -.->|read| S
     U["user correction · <code>POST /api/observe</code>"] ==>|"the ONLY writer"| DB
 
-    style A fill:#eef2ff,stroke:#6366f1
-    style OUT fill:#ecfdf5,stroke:#10b981
-    style RP fill:#ecfdf5,stroke:#10b981
-    style DF fill:#fef3c7,stroke:#f59e0b
-    style U fill:#fef3c7,stroke:#f59e0b
-    style S fill:#f8fafc,stroke:#94a3b8
+    classDef step  fill:#eef2ff,stroke:#6366f1,color:#1e1b4b
+    classDef gate  fill:#f1f5f9,stroke:#64748b,color:#0f172a
+    classDef keep  fill:#e2e8f0,stroke:#475569,color:#0f172a
+    classDef defer fill:#fef3c7,stroke:#f59e0b,color:#451a03
+    classDef rep   fill:#d1fae5,stroke:#10b981,color:#064e3b
+    classDef sig   fill:#faf5ff,stroke:#a855f7,color:#3b0764
+    classDef store fill:#fff7ed,stroke:#fb923c,color:#431407
+
+    class A,B,C,D,OUT step
+    class G1,G2,G3,BAND gate
+    class K1,K2,K3 keep
+    class DF defer
+    class RP rep
+    class S1,S2,S3 sig
+    class DB,U store
+    style S fill:#fdfaff,stroke:#a855f7,color:#3b0764
 ```
 
 Gates are checked **in order** — the first to fire wins. That ordering is the safety story:

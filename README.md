@@ -26,16 +26,16 @@ evidence and a plain-English reason for every word.
 
 ```mermaid
 flowchart TD
-    A["🎙 audio / text"] --> B["<b>ASR</b> · level 1<br/>echo provider"]
+    A["audio / text"] --> B["<b>ASR</b> · level 1<br/>echo provider"]
     B --> C["<b>Formatter</b> · level 2<br/>punctuation, casing"]
     C --> D["<b>Retrieval</b><br/>exact · normalized · fuzzy<br/>phonetic · personal accent"]
     D -->|"candidates only,<br/>never a verdict"| S
 
     subgraph S ["context signals — each covers the previous one's blind spot"]
         direction LR
-        S1["<b>1 Keyword</b><br/>hand-listed<br/><i>misses “edible”</i>"]
-        S2["<b>2 Semantic</b><br/>local embedding model<br/><i>misses “I see you”</i>"]
-        S3["<b>3 Grammar</b><br/>homophone slot<br/><i>misses son/sun</i>"]
+        S1["<b>1 Keyword</b><br/>hand-listed<br/><i>misses: edible</i>"]
+        S2["<b>2 Semantic</b><br/>local embedding model<br/><i>misses: I see you</i>"]
+        S3["<b>3 Grammar</b><br/>homophone slot<br/><i>misses: son vs sun</i>"]
         S1 --- S2 --- S3
     end
 
@@ -50,7 +50,7 @@ flowchart TD
     BAND -->|"&ge; 0.32"| DF
     BAND -->|"&lt; 0.32"| K3["<b>KEEP</b>"]
 
-    RP --> OUT["📝 level 3 memory-aware text<br/>+ decision trace"]
+    RP --> OUT["level 3 memory-aware text<br/>+ decision trace"]
     DF --> OUT
     K1 --> OUT
     K2 --> OUT
@@ -59,7 +59,7 @@ flowchart TD
     DB[("<b>SQLite</b><br/>memory · alias · observation<br/>evidence · sound_pattern")]
     DB -.->|read| D
     DB -.->|read| S
-    U["👤 correction · <code>POST /api/observe</code>"] ==>|"the ONLY writer"| DB
+    U["user correction · <code>POST /api/observe</code>"] ==>|"the ONLY writer"| DB
 
     style A fill:#eef2ff,stroke:#6366f1
     style OUT fill:#ecfdf5,stroke:#10b981

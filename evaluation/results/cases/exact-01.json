@@ -34,7 +34,7 @@
     "note": null
   },
   "passed": true,
-  "latency_ms": 1534.65,
+  "latency_ms": 1689.63,
   "model_calls": 0,
   "est_cost_usd": 0.0
 }

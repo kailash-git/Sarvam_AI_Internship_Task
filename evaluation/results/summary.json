@@ -15,9 +15,9 @@
     "idempotency_pass": "1/1"
   },
   "latency_ms": {
-    "p50": 2.725,
-    "p95": 6.43,
-    "max": 1534.65
+    "p50": 3.285,
+    "p95": 8.58,
+    "max": 1689.63
   },
   "model_usage": {
     "total_model_calls": 0,

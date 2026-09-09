@@ -16,10 +16,16 @@ Everything below is copy-paste from the repository root.
 - All core decision logic is stdlib-only. Packages are needed only for the HTTP
   layer and the optional semantic context layer.
 
-## 2. Setup
+## 2. Environment variables
+
+**None are required.** There are no secrets, no API keys, and no network access at any
+point. Every tunable lives in `config.json` (see §10). `.env.example` is present only to
+document that fact.
+
+## 3. Setup
 
 ```bash
-cd D:/Sarvam_AI
+cd <repo root>
 python -m venv .venv
 # Windows PowerShell:  .venv\Scripts\Activate.ps1
 # Git Bash:            source .venv/Scripts/activate
@@ -32,7 +38,7 @@ the system still runs: it falls back to the shipped keyword/semantic-field lexic
 automatically (`config.json` -> `semantic_context.backend`). Everything except
 `serve` also runs with no dependencies at all.
 
-## 3. Initialise the database
+## 4. Initialise the database
 
 ```bash
 python manage.py reset
@@ -52,22 +58,49 @@ onboarding). The accent profile is otherwise learned from corrections at runtime
 
 `migrate` and `seed` are also available separately.
 
-## 4. Run the app
+## 5. Run the app
 
 ```bash
 python manage.py serve
 ```
 
-Open <http://127.0.0.1:8000> &mdash; four tabs:
+### 5.1 Interface to open
 
-1. **Try it** &mdash; type an utterance (or click **Record** to capture your microphone),
-   press **Process**, see the three transcript levels and the decision trace. Use
-   **confirm / reject** on any trace row to teach the memory, then watch it re-process.
-2. **Memory** &mdash; browse memories; click a row for aliases, evidence, contexts,
-   observations; teach a new memory. The top panel shows the **accent profile**
-   (the user's learned ASR sound-substitutions). Also exposed at `GET /api/phonetic-profile`.
+Open <http://127.0.0.1:8000> &mdash; three tabs:
+
+1. **Transcribe** &mdash; type an utterance and press enter. Every word in the result is a
+   button: click it to see the decision + reason, then **Save fix** (teaches a correction)
+   or **Keep "&lt;heard&gt;"** (teaches a scoped rejection). The line re-processes immediately.
+   This is the only place memories are taught.
+2. **Memory** &mdash; browse memories; click a row for aliases, evidence, contexts and
+   observations, or **promote** / **retire** it. The top panel is the **accent profile**
+   (learned ASR sound-substitutions), also at `GET /api/phonetic-profile`.
+   **Reset memory** (top right) restores the seed.
 3. **Evaluation** &mdash; **Load results** shows the committed metrics + full report.
-4. **Reset** &mdash; one click restores the seed (the reset/repeat workflow).
+
+### 5.2 Primary interactions to try
+
+Paste these into **Transcribe**, in order:
+
+| # | type this | expect | shows |
+|---|---|---|---|
+| 1 | `open the kiwi service` | `Open the **Kivi** service.` | memory + software context -> REPLACE |
+| 2 | `I ate a kiwi today` | *unchanged* | deliberate non-intervention |
+| 3 | `Kivi is edible` | *unchanged* | **semantic layer**: "edible" is in no keyword list |
+| 4 | `the kiwi looked crimson and juicy` | *unchanged* | "crimson" was never taught to anything |
+| 5 | `ask civi` | *DEFER* | genuine ambiguity (`Kivi` vs `Sivi`) |
+| 6 | `deploy the zephyr module` | *unchanged* | unknown word, nothing hallucinated |
+| 7 | click a word -> **Save fix** | line re-processes | the learning loop |
+
+To see the **grammar layer**, first teach a homophone: type `I no you`, click **no**,
+Save fix -> `know`. Then:
+
+| type this | expect |
+|---|---|
+| `I no you` | `I know you.` (verb slot) |
+| `do you no where it is` | `Do you know where it is?` |
+| `there is no problem` | *unchanged* &mdash; determiner slot, function word protected |
+| `no one came` | *unchanged* |
 
 ### One-shot from the CLI (no server)
 
@@ -76,7 +109,7 @@ python manage.py process "Open the kiwi service."
 python manage.py process "Kivi is green and oval."
 ```
 
-## 5. Semantic context layer (optional, on by default)
+## 6. Semantic context layer (optional, on by default)
 
 A word list can never enumerate every word that signals a context. The semantic
 layer turns each utterance into a meaning vector and compares it to the
@@ -98,7 +131,7 @@ any list).
   `"enabled": false` for the pre-semantic keyword-only behaviour.
 - The decision trace records `s_ctx_semantic` and a plain-English `context_note`.
 
-## 5b. Grammar layer for homophones (rule-based, always on)
+## 7. Grammar layer for homophones (rule-based, always on)
 
 Surface match can't tell `see` from `sea`, and neither the keyword lists nor a
 small embedding model reliably can. The **grammatical slot** of the word can:
@@ -116,7 +149,7 @@ context) may drive a REPLACE - surface match and correction history cannot. When
 grammar is unclear the word is left exactly as written. Reason codes:
 `homophone_grammar`, `homophone_unclear`; the trace carries a `homophone` block.
 
-## 6. Evaluation
+## 8. Evaluation
 
 ```bash
 python manage.py eval
@@ -136,7 +169,7 @@ These files are committed so a reviewer sees the numbers without running anythin
 The run is **deterministic** (echo ASR + rule-based formatter + fixed `config.json`
 + fixed embedding weights). After the run the DB is left clean and seeded.
 
-## 7. Tests
+## 9. Tests
 
 ```bash
 python -m unittest discover -s tests -p "test_basic.py" -v
@@ -148,7 +181,7 @@ invariant, the learning pipeline, personal phonetics, the semantic context layer
 disabled-flag fallback, read-only), and the grammar/homophone layer (verb slot
 left alone, noun slot restored with no keyword context, mixed sentence, module).
 
-## 8. Configuration
+## 10. Configuration
 
 All thresholds and weights live in `config.json`. Highlights:
 
@@ -161,6 +194,7 @@ All thresholds and weights live in `config.json`. Highlights:
 | `semantic_context.backend` | `model2vec` (embedding model) or `lexicon` |
 | `semantic_context.model_path` | path to the vendored static model |
 | `semantic_context.neg_gate` / `.neg_floor` | how a negative semantic separation maps onto `s_ctx_neg` |
+| `semantic_context.pos_clear` | how clearly the meaning must agree before a taught correction is applied to a same-part-of-speech homophone (son/sun) |
 
 The grammar/homophone layer has no config knobs; its data is
 `backend/kivi/data/common_words.json` (extend the `common` set and `pos` map to
@@ -168,7 +202,7 @@ cover more pairs).
 
 Values are provisional; `evaluation/results/report.md` is where they are validated.
 
-## 9. Audio / recording notes
+## 11. Audio / recording notes
 
 - The **Record** button posts a `webm/opus` blob to `POST /api/process-audio`.
 - Live/recorded audio needs a **real** ASR provider. The default `asr_provider` is
@@ -177,7 +211,7 @@ Values are provisional; `evaluation/results/report.md` is where they are validat
   stored transcripts. With `echo`, `/api/process-audio` returns HTTP 409.
 - The **evaluation harness always uses `echo`** for determinism.
 
-## 10. Reset / repeat
+## 12. Reset / repeat
 
 ```bash
 python manage.py reset          # CLI

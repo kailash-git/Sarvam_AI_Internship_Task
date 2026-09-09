@@ -23,9 +23,9 @@ _Deterministic run: echo ASR + rule-based formatter + fixed `config.json`._
 
 | Metric | Value |
 |---|---|
-| Latency p50 | 2.725 ms |
-| Latency p95 | 6.43 ms |
-| Latency max | 1534.65 ms |
+| Latency p50 | 3.285 ms |
+| Latency p95 | 8.58 ms |
+| Latency max | 1689.63 ms |
 | Total model calls | 0 |
 | Total est. cost | $0.0 |
 
@@ -121,4 +121,4 @@ _Deterministic run: echo ASR + rule-based formatter + fixed `config.json`._
 
 _None - all cases passed._
 
-_Generated 2026-09-09 22:19:11 local._
+_Generated 2026-09-09 22:39:37 local._
